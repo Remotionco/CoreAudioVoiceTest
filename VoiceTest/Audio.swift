@@ -142,20 +142,6 @@ class AudioManager: ObservableObject {
     }
 }
 
-enum UnitSubType{
-    case HAL
-    case VPIO
-    
-    var subTypeValue : UInt32 {
-        switch self {
-        case .HAL:
-            return kAudioUnitSubType_HALOutput
-        case .VPIO:
-            return kAudioUnitSubType_VoiceProcessingIO
-        }
-    }
-}
-
 class DeviceManager {
     var activeInputID: AudioObjectID?
     var activeOutputID: AudioObjectID?
@@ -369,36 +355,4 @@ extension DeviceManager {
     static var enabled = UInt32(1)
     static var disabled = UInt32(0)
     
-}
-
-enum CustomAudioPipelineError: Error {
-    case couldNotInitialize(error: OSStatus)
-    case couldNotStart(error: OSStatus)
-    case couldNotSetBufferSize(error: OSStatus)
-}
-
-enum AudioUnitOutputCreationError: Error {
-    case cantFindAudioHALOutputComponent
-    case cantInstantiateHALOutputComponent(error: OSStatus)
-    case audioUnitNil
-    case halCantDisableInputIO(error: OSStatus)
-    case halCantEnableOutputIO(error: OSStatus)
-    case halCantSetOutputDevice(error: OSStatus)
-    case cantSetInputFormat(error: OSStatus)
-    case cantSetRenderCallback(error: OSStatus)
-    case couldNotSetOutputSampleRate(error: OSStatus)
-    case unknown
-}
-
-enum AudioUnitInputCreationError: Error {
-    case cantFindAudioHALOutputComponent
-    case cantInstantiateHALOutputComponent(error: OSStatus)
-    case audioUnitNil
-    case halCantEnableInputIO(error: OSStatus)
-    case halCantDisableOutputIO(error: OSStatus)
-    case halCantSetInputDevice(error: OSStatus)
-    case cantSetOutputFormat(error: OSStatus)
-    case cantSetInputCallback(error: OSStatus)
-    case couldNotSetInputSampleRate(error: OSStatus)
-    case unknown
 }

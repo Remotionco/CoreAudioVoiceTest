@@ -188,26 +188,3 @@ extension DeviceManager {
         return deviceType
     }
 }
-
-func size<T>(of value: T) -> UInt32 {
-    return UInt32(MemoryLayout.size(ofValue: value))
-}
-
-struct DeviceType: Equatable {
-    var isMicrophone: Bool
-    var isSpeaker: Bool
-}
-
-struct AudioDevice: Identifiable {
-    var id: AudioObjectID
-    var name: String
-    var deviceType: DeviceType
-    var sampleRate: Float64
-}
-
-extension AudioDevice: Hashable, Equatable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(name)
-    }
-}
