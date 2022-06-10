@@ -5,9 +5,10 @@
 ## Primary issues:
 1) `kAudioUnitSubType_VoiceProcessingIO` does not lead to "Mic Mode" getting enabled (see scenario 1) with built-in input/output
 2) `kAudioUnitSubType_HALOutput` leads to errors once `AudioUnit` is started (see scenario 2) with AirPods
-3) See Scenario 3 for results with wired headphones
 
-The first two scenarios (built-in MacBook speakers/mic & AirPods Pro) are the most relevant
+(See Scenario 3 for results with wired headphones)
+
+I've tried to shorten the code as much as possible, but CoreAudio requires a reasonable amount of boilerplate.
 
 ## Instructions:
 

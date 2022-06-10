@@ -149,7 +149,7 @@ class DeviceManager {
     private class func makeAudioComponentDescriptionHALOutput(subType: UnitSubType) -> AudioComponentDescription {
         var audioComponentDescription = AudioComponentDescription()
         audioComponentDescription.componentType = kAudioUnitType_Output
-        audioComponentDescription.componentSubType = subType.subTypeValue
+        audioComponentDescription.componentSubType = subType.subTypeValue // either HALOutput or VoiceProcessingIO
         audioComponentDescription.componentManufacturer = kAudioUnitManufacturer_Apple
         audioComponentDescription.componentFlags = 0
         audioComponentDescription.componentFlagsMask = 0
