@@ -17,13 +17,6 @@ class AudioManager: ObservableObject {
     @Published var isRunning = false
     @Published var listedDevices: [(name: String, id: AudioObjectID)] = []
         
-    struct DeviceState {
-        var inputUnit: AudioUnit?
-        var outputUnit: AudioUnit?
-    }
-    
-    private var deviceState = DeviceState()
-    
     func getPermissions() {
         AVCaptureDevice.requestAccess(for: .audio) { value in
             print("Permission: \(value)")
@@ -44,7 +37,6 @@ class AudioManager: ObservableObject {
             let inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
                                                                        audioDeviceID: inputDeviceID,
                                                                        audioStreamBasicDescription: desc)
-            deviceState.inputUnit = inputUnit
             
             contextPointer.pointee.inputAudioUnit = inputUnit
         } catch {
@@ -60,7 +52,6 @@ class AudioManager: ObservableObject {
             let outputUnit = try DeviceManager.makeAudioOutputUnit(rawContext: contextPointer,
                                                                        audioDeviceID: outputDeviceID,
                                                                        audioStreamBasicDescription: desc)
-            deviceState.outputUnit = outputUnit
             
             contextPointer.pointee.outputAudioUnit = outputUnit
         } catch {
@@ -86,11 +77,11 @@ class AudioManager: ObservableObject {
     }
     
     func startAudio() {
-        guard let inputUnit = deviceState.inputUnit else {
+        guard let inputUnit = contextPointer.pointee.inputAudioUnit else {
             assertionFailure()
             return
         }
-        guard let outputUnit = deviceState.outputUnit else {
+        guard let outputUnit = contextPointer.pointee.outputAudioUnit else {
             assertionFailure()
             return
         }
@@ -124,11 +115,11 @@ class AudioManager: ObservableObject {
     }
     
     func stopAudio() {
-        guard let inputUnit = deviceState.inputUnit else {
+        guard let inputUnit = contextPointer.pointee.inputAudioUnit else {
             assertionFailure()
             return
         }
-        guard let outputUnit = deviceState.outputUnit else {
+        guard let outputUnit = contextPointer.pointee.outputAudioUnit else {
             assertionFailure()
             return
         }
@@ -151,25 +142,6 @@ class AudioManager: ObservableObject {
 class DeviceManager {
     var activeInputID: AudioObjectID?
     var activeOutputID: AudioObjectID?
-    
-    // Core Audio constants
-    static let outputBus = UInt32(0) // stream to output hardware
-    static let inputBus = UInt32(1) // stream from HAL input hardware
-    static var enabled = UInt32(1)
-    static var disabled = UInt32(0)
-    
-    enum AudioUnitInputCreationError: Error {
-        case cantFindAudioHALOutputComponent
-        case cantInstantiateHALOutputComponent(error: OSStatus)
-        case audioUnitNil
-        case halCantEnableInputIO(error: OSStatus)
-        case halCantDisableOutputIO(error: OSStatus)
-        case halCantSetInputDevice(error: OSStatus)
-        case cantSetOutputFormat(error: OSStatus)
-        case cantSetInputCallback(error: OSStatus)
-        case couldNotSetInputSampleRate(error: OSStatus)
-        case unknown
-    }
     
     private class func makeAudioComponentDescriptionHALOutput() -> AudioComponentDescription {
         var audioComponentDescription = AudioComponentDescription()
@@ -262,19 +234,6 @@ class DeviceManager {
         return audioUnit
     }
     
-    enum AudioUnitOutputCreationError: Error {
-        case cantFindAudioHALOutputComponent
-        case cantInstantiateHALOutputComponent(error: OSStatus)
-        case audioUnitNil
-        case halCantDisableInputIO(error: OSStatus)
-        case halCantEnableOutputIO(error: OSStatus)
-        case halCantSetOutputDevice(error: OSStatus)
-        case cantSetInputFormat(error: OSStatus)
-        case cantSetRenderCallback(error: OSStatus)
-        case couldNotSetOutputSampleRate(error: OSStatus)
-        case unknown
-    }
-    
     class func makeAudioOutputUnit(rawContext: UnsafeMutableRawPointer,
                                    audioDeviceID: AudioObjectID,
                                    audioStreamBasicDescription: AudioStreamBasicDescription) throws -> AudioUnit
@@ -355,4 +314,40 @@ class DeviceManager {
 
         return audioUnit
     }
+}
+
+extension DeviceManager {
+    
+    // Core Audio constants
+    static let outputBus = UInt32(0) // stream to output hardware
+    static let inputBus = UInt32(1) // stream from HAL input hardware
+    static var enabled = UInt32(1)
+    static var disabled = UInt32(0)
+    
+}
+
+enum AudioUnitOutputCreationError: Error {
+    case cantFindAudioHALOutputComponent
+    case cantInstantiateHALOutputComponent(error: OSStatus)
+    case audioUnitNil
+    case halCantDisableInputIO(error: OSStatus)
+    case halCantEnableOutputIO(error: OSStatus)
+    case halCantSetOutputDevice(error: OSStatus)
+    case cantSetInputFormat(error: OSStatus)
+    case cantSetRenderCallback(error: OSStatus)
+    case couldNotSetOutputSampleRate(error: OSStatus)
+    case unknown
+}
+
+enum AudioUnitInputCreationError: Error {
+    case cantFindAudioHALOutputComponent
+    case cantInstantiateHALOutputComponent(error: OSStatus)
+    case audioUnitNil
+    case halCantEnableInputIO(error: OSStatus)
+    case halCantDisableOutputIO(error: OSStatus)
+    case halCantSetInputDevice(error: OSStatus)
+    case cantSetOutputFormat(error: OSStatus)
+    case cantSetInputCallback(error: OSStatus)
+    case couldNotSetInputSampleRate(error: OSStatus)
+    case unknown
 }

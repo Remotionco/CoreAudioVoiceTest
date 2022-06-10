@@ -26,7 +26,6 @@ struct ContentView: View {
                     }
                 }
                 
-                
                 VStack {
                     Text("Output")
                     List(audioManager.listedDevices, id: \.id, selection: $selectedOutputDevice) { device in
@@ -36,7 +35,6 @@ struct ContentView: View {
                     }
                 }
             }
-            
             
             Button("List") {
                 audioManager.getPermissions()
