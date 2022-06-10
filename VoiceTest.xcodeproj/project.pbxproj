@@ -12,6 +12,7 @@
 		D23DA66628537EB70061CAE0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D23DA66528537EB70061CAE0 /* Assets.xcassets */; };
 		D23DA66928537EB70061CAE0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D23DA66828537EB70061CAE0 /* Preview Assets.xcassets */; };
 		D23DA677285382A00061CAE0 /* AudioCallbacks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */; };
+		D23DA679285384720061CAE0 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA678285384720061CAE0 /* Audio.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +26,7 @@
 		D23DA671285381ED0061CAE0 /* VoiceTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VoiceTest-Bridging-Header.h"; sourceTree = "<group>"; };
 		D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AudioCallbacks.cpp; sourceTree = "<group>"; };
 		D23DA676285382A00061CAE0 /* AudioCallbacks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AudioCallbacks.hpp; sourceTree = "<group>"; };
+		D23DA678285384720061CAE0 /* Audio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 				D23DA67028537EEB0061CAE0 /* Info.plist */,
 				D23DA66128537EB60061CAE0 /* VoiceTestApp.swift */,
 				D23DA66328537EB60061CAE0 /* ContentView.swift */,
+				D23DA678285384720061CAE0 /* Audio.swift */,
 				D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */,
 				D23DA676285382A00061CAE0 /* AudioCallbacks.hpp */,
 				D23DA66528537EB70061CAE0 /* Assets.xcassets */,
@@ -149,6 +152,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D23DA679285384720061CAE0 /* Audio.swift in Sources */,
 				D23DA677285382A00061CAE0 /* AudioCallbacks.cpp in Sources */,
 				D23DA66428537EB60061CAE0 /* ContentView.swift in Sources */,
 				D23DA66228537EB60061CAE0 /* VoiceTestApp.swift in Sources */,
