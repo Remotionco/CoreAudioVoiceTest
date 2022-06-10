@@ -19,6 +19,7 @@ typedef struct CustomAudioContext {
     AudioUnit _Nullable inputAudioUnit;
     AudioUnit _Nullable outputAudioUnit;
     void* _Nullable inputBuffer;
+    int bytesPerBlock;
 } CustomAudioContext;
 
 OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,

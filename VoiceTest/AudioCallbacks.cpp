@@ -6,6 +6,7 @@
 //
 
 #include "AudioCallbacks.hpp"
+#import "TPCircularBuffer.h"
 
 float computeEnergy(float* samples, int sampleCount) {
     float energy = 0;
@@ -55,6 +56,19 @@ OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,
     printf("Magnitude: %f  ", magnitude);
     printf("\n");
     
+    TPCircularBuffer* inputCircularBuffer = reinterpret_cast<TPCircularBuffer*>(context->inputBuffer);
+    
+
+    uint32_t inputCircularBufferAvailableSpace;
+    void* inputCircularBufferHead = TPCircularBufferHead(inputCircularBuffer, &inputCircularBufferAvailableSpace);
+    
+    if (inputCircularBufferAvailableSpace < bufferSize) {
+        //statistics->inputCircularBufferOverflowCount++;
+    } else {
+        memcpy(inputCircularBufferHead, buffer, bufferSize);
+        TPCircularBufferProduce(inputCircularBuffer, bufferSize);
+    }
+    
     return noErr;
 }
 
@@ -66,7 +80,21 @@ OSStatus AudioUnitPlayoutCallback(void* _Nonnull inRefCon,
                                   AudioBufferList* _Nullable ioData) {
     CustomAudioContext* context = reinterpret_cast<CustomAudioContext*>(inRefCon);
     
-    printf("Playback\n");
+    // printf("Playback\n");
+    
+    TPCircularBuffer* inputCircularBuffer = reinterpret_cast<TPCircularBuffer*>(context->inputBuffer);
+    uint32_t availableBytes;
+    void* buffer = TPCircularBufferTail(inputCircularBuffer, &availableBytes);
+    
+    UInt32 bytes = inNumberFrames * 4;
+    
+    if (availableBytes < bytes) {
+        ioData->mBuffers[0].mDataByteSize = 0;
+        *ioActionFlags = kAudioUnitRenderAction_OutputIsSilence;
+    } else {
+        memcpy(ioData->mBuffers[0].mData, buffer, bytes);
+        TPCircularBufferConsume(inputCircularBuffer, bytes);
+    }
     
     return noErr;
 }

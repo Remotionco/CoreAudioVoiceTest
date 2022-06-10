@@ -233,6 +233,8 @@ class DeviceManager {
         contextPointer.pointee.inputBuffer = CircularBuffer.makeCircularBuffer(
             sampleRate: audioStreamBasicDescription.mSampleRate
         )
+        
+        contextPointer.pointee.bytesPerBlock = Int32(CircularBuffer.calculateSamplesPerBlock(sampleRate: audioStreamBasicDescription.mSampleRate))
 
         return audioUnit
     }
