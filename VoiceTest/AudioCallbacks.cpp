@@ -81,9 +81,6 @@ OSStatus AudioUnitPlayoutCallback(void* _Nonnull inRefCon,
                                   AudioBufferList* _Nullable ioData) {
     CustomAudioContext* context = reinterpret_cast<CustomAudioContext*>(inRefCon);
     
-//    printf("Playback ");
-//    printf("Frames: %i  ", inNumberFrames);
-//    printf("\n");
     
     TPCircularBuffer* inputCircularBuffer = reinterpret_cast<TPCircularBuffer*>(context->inputBuffer);
     uint32_t availableBytes;
@@ -98,6 +95,13 @@ OSStatus AudioUnitPlayoutCallback(void* _Nonnull inRefCon,
         memcpy(ioData->mBuffers[0].mData, buffer, bytes);
         TPCircularBufferConsume(inputCircularBuffer, bytes);
     }
+    
+    float* outBuffer = reinterpret_cast<float*>(ioData->mBuffers[0].mData);
+    
+    printf("Playback ");
+    printf("Magnitude: %f", computeEnergy(outBuffer, inNumberFrames));
+    //printf("Frames: %i  ", inNumberFrames);
+    printf("\n");
     
     return noErr;
 }

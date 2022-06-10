@@ -39,6 +39,7 @@ struct ContentView: View {
                     } label: {
                         Text("")
                     }
+                    .disabled(selectedInputDevice == nil)
                 }
                 
                 VStack {
@@ -56,6 +57,7 @@ struct ContentView: View {
                     } label: {
                         Text("")
                     }
+                    .disabled(selectedOutputDevice == nil)
                 }
             }
             
@@ -81,7 +83,7 @@ struct ContentView: View {
                                         outputDevice: outputDevice,
                                         subType: voiceProcessing ? .VPIO : .HAL)
             }
-            .disabled(selectedInputDevice == nil)
+            .disabled(selectedInputDevice == nil || audioManager.isRunning)
             
             Button(audioManager.isRunning ? "Stop" : "Start") {
                 audioManager.toggleAudio()
