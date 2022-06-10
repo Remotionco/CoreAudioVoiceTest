@@ -36,8 +36,8 @@ class AudioManager: ObservableObject {
             
             let inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
                                                                  subType: subType,
-                                                                       audioDeviceID: inputDeviceID,
-                                                                       audioStreamBasicDescription: desc)
+                                                                 audioDeviceID: inputDeviceID,
+                                                                 audioStreamBasicDescription: desc)
             
             // Setup the buffers
             try DeviceManager.setAudioUnitBufferSize(audioUnit: inputUnit, bufferSize: CircularBuffer.calculateSamplesPerBlock(sampleRate: desc.mSampleRate))
@@ -48,21 +48,21 @@ class AudioManager: ObservableObject {
         }
         
         do {
-            let sampleRate = DeviceManager.getSampleRateForDevice(outputDeviceID)
+            let sampleRate: Float64 = 24000 //DeviceManager.getSampleRateForDevice(outputDeviceID)
             print("Output sample rate: \(sampleRate)")
             let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: sampleRate)
             
             
             let outputUnit = try DeviceManager.makeAudioOutputUnit(rawContext: contextPointer,
                                                                    subType: subType,
-                                                                       audioDeviceID: outputDeviceID,
-                                                                       audioStreamBasicDescription: desc)
+                                                                   audioDeviceID: outputDeviceID,
+                                                                   audioStreamBasicDescription: desc)
             // Setup the buffers
             try DeviceManager.setAudioUnitBufferSize(audioUnit: outputUnit, bufferSize: CircularBuffer.calculateSamplesPerBlock(sampleRate: desc.mSampleRate))
             
             contextPointer.pointee.outputAudioUnit = outputUnit
         } catch {
-            assertionFailure("Input error: \(error)")
+            assertionFailure("Output error: \(error)")
         }
         
         

@@ -54,6 +54,7 @@ OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,
     
     printf("Callback at %f  ", inTimeStamp->mSampleTime);
     printf("Magnitude: %f  ", magnitude);
+    printf("Frames: %i  ", inNumberFrames);
     printf("\n");
     
     TPCircularBuffer* inputCircularBuffer = reinterpret_cast<TPCircularBuffer*>(context->inputBuffer);
@@ -80,7 +81,9 @@ OSStatus AudioUnitPlayoutCallback(void* _Nonnull inRefCon,
                                   AudioBufferList* _Nullable ioData) {
     CustomAudioContext* context = reinterpret_cast<CustomAudioContext*>(inRefCon);
     
-    // printf("Playback\n");
+    printf("Playback ");
+    printf("Frames: %i  ", inNumberFrames);
+    printf("\n");
     
     TPCircularBuffer* inputCircularBuffer = reinterpret_cast<TPCircularBuffer*>(context->inputBuffer);
     uint32_t availableBytes;

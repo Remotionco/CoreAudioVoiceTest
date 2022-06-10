@@ -13,10 +13,11 @@
 		D23DA66928537EB70061CAE0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D23DA66828537EB70061CAE0 /* Preview Assets.xcassets */; };
 		D23DA677285382A00061CAE0 /* AudioCallbacks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */; };
 		D23DA679285384720061CAE0 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA678285384720061CAE0 /* Audio.swift */; };
-		D23DA67B285391380061CAE0 /* Devices+Formats.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA67A285391380061CAE0 /* Devices+Formats.swift */; };
+		D23DA67B285391380061CAE0 /* Devices.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA67A285391380061CAE0 /* Devices.swift */; };
 		D23DA67E28539D5B0061CAE0 /* TPCircularBuffer in Frameworks */ = {isa = PBXBuildFile; productRef = D23DA67D28539D5B0061CAE0 /* TPCircularBuffer */; };
 		D23DA68128539DA10061CAE0 /* CircularBufferBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D23DA67F28539DA10061CAE0 /* CircularBufferBridge.cpp */; };
 		D23DA68428539DDB0061CAE0 /* CircularBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA68328539DDB0061CAE0 /* CircularBuffer.swift */; };
+		D23DA6862853D2390061CAE0 /* Formats.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA6852853D2390061CAE0 /* Formats.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,10 +32,11 @@
 		D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AudioCallbacks.cpp; sourceTree = "<group>"; };
 		D23DA676285382A00061CAE0 /* AudioCallbacks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AudioCallbacks.hpp; sourceTree = "<group>"; };
 		D23DA678285384720061CAE0 /* Audio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
-		D23DA67A285391380061CAE0 /* Devices+Formats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Devices+Formats.swift"; sourceTree = "<group>"; };
+		D23DA67A285391380061CAE0 /* Devices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Devices.swift; sourceTree = "<group>"; };
 		D23DA67F28539DA10061CAE0 /* CircularBufferBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircularBufferBridge.cpp; sourceTree = "<group>"; };
 		D23DA68028539DA10061CAE0 /* CircularBufferBridge.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CircularBufferBridge.hpp; sourceTree = "<group>"; };
 		D23DA68328539DDB0061CAE0 /* CircularBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularBuffer.swift; sourceTree = "<group>"; };
+		D23DA6852853D2390061CAE0 /* Formats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formats.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,7 +74,8 @@
 				D23DA66128537EB60061CAE0 /* VoiceTestApp.swift */,
 				D23DA66328537EB60061CAE0 /* ContentView.swift */,
 				D23DA678285384720061CAE0 /* Audio.swift */,
-				D23DA67A285391380061CAE0 /* Devices+Formats.swift */,
+				D23DA67A285391380061CAE0 /* Devices.swift */,
+				D23DA6852853D2390061CAE0 /* Formats.swift */,
 				D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */,
 				D23DA676285382A00061CAE0 /* AudioCallbacks.hpp */,
 				D23DA68228539DA70061CAE0 /* CircularBuffer */,
@@ -182,7 +185,8 @@
 				D23DA679285384720061CAE0 /* Audio.swift in Sources */,
 				D23DA68428539DDB0061CAE0 /* CircularBuffer.swift in Sources */,
 				D23DA677285382A00061CAE0 /* AudioCallbacks.cpp in Sources */,
-				D23DA67B285391380061CAE0 /* Devices+Formats.swift in Sources */,
+				D23DA67B285391380061CAE0 /* Devices.swift in Sources */,
+				D23DA6862853D2390061CAE0 /* Formats.swift in Sources */,
 				D23DA66428537EB60061CAE0 /* ContentView.swift in Sources */,
 				D23DA66228537EB60061CAE0 /* VoiceTestApp.swift in Sources */,
 				D23DA68128539DA10061CAE0 /* CircularBufferBridge.cpp in Sources */,
