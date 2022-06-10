@@ -30,8 +30,8 @@ class AudioManager: ObservableObject {
     func setupAudio(inputDeviceID: AudioDeviceID, outputDeviceID: AudioDeviceID, subType: UnitSubType) {
         // Setup the audio units
         do {
-            let sampleRate = DeviceManager.getSampleRateForDevice(inputDeviceID)
-            print("Input sample rate: \(sampleRate)")
+            let sampleRate = DeviceManager.getNominalSampleRateForDevice(inputDeviceID)
+            print("Input sample rate: \(sampleRate) -- actual: \(DeviceManager.getActualSampleRateForDevice(inputDeviceID))")
             let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: sampleRate)
             
             let inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
@@ -48,8 +48,10 @@ class AudioManager: ObservableObject {
         }
         
         do {
-            let sampleRate: Float64 = 24000 //DeviceManager.getSampleRateForDevice(outputDeviceID)
-            print("Output sample rate: \(sampleRate)")
+            var sampleRate: Float64 = DeviceManager.getNominalSampleRateForDevice(outputDeviceID)
+            print("Output sample rate: \(sampleRate) actual: \(DeviceManager.getActualSampleRateForDevice(outputDeviceID))")
+            // sampleRate = 24000 // NEEDED FOR AIRPODS!
+            
             let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: sampleRate)
             
             
