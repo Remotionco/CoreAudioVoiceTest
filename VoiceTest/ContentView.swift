@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AudioToolbox
+import AVFoundation
 
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
@@ -94,6 +95,32 @@ struct ContentView: View {
         .onAppear {
             audioManager.getPermissions()
             audioManager.listDevices()
+        }
+    }
+}
+
+// UI-facing functions
+extension AudioManager {
+    func getPermissions() {
+        AVCaptureDevice.requestAccess(for: .audio) { value in
+            print("Permission: \(value)")
+        }
+    }
+    
+    func listDevices() {
+        self.listedDevices = DeviceManager.allDevices()
+    }
+    
+    
+    func toggleAudio() {
+        guard isSetup else {
+            assertionFailure("Not setup")
+            return
+        }
+        if isRunning {
+            stopAudio()
+        } else {
+            startAudio()
         }
     }
 }

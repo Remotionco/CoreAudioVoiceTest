@@ -17,16 +17,6 @@ class AudioManager: ObservableObject {
     @Published var isRunning = false
     @Published var listedDevices: [AudioDevice] = []
         
-    func getPermissions() {
-        AVCaptureDevice.requestAccess(for: .audio) { value in
-            print("Permission: \(value)")
-        }
-    }
-    
-    func listDevices() {
-        self.listedDevices = DeviceManager.allDevices()
-    }
-    
     func setupAudio(inputDevice: AudioDevice, outputDevice: AudioDevice, subType: UnitSubType) {
         // Setup the audio units
         do {
@@ -65,18 +55,6 @@ class AudioManager: ObservableObject {
         
         isSetup = true
         print("Setup success")
-    }
-    
-    func toggleAudio() {
-        guard isSetup else {
-            assertionFailure("Not setup")
-            return
-        }
-        if isRunning {
-            stopAudio()
-        } else {
-            startAudio()
-        }
     }
     
     func startAudio() {

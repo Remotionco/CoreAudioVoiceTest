@@ -8,7 +8,8 @@
 
 (See Scenario 3 for results with wired headphones)
 
-I've tried to shorten the code as much as possible, but CoreAudio requires a reasonable amount of boilerplate.
+I've tried to shorten the code as much as possible, but CoreAudio requires a reasonable amount of boilerplate -
+`Audio.swift` should contain relevant code to the question, with some of that boilerplate separated out into files like `Devices`, `Formats`, `Types`, etc.
 
 ## Instructions:
 
