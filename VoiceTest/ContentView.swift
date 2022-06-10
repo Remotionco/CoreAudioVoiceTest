@@ -38,11 +38,6 @@ struct ContentView: View {
                 }
             }
             
-            Button("List") {
-                audioManager.getPermissions()
-                audioManager.listDevices()
-            }
-            
             Toggle("VPIO", isOn: $voiceProcessing)
             
             Button("Setup") {
@@ -67,5 +62,9 @@ struct ContentView: View {
             .disabled(!audioManager.isSetup)
         }
         .padding()
+        .onAppear {
+            audioManager.getPermissions()
+            audioManager.listDevices()
+        }
     }
 }
