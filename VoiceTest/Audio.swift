@@ -7,10 +7,21 @@
 
 import Foundation
 import AudioToolbox
+import AVFoundation
 
 class AudioManager: ObservableObject {
     @Published var isSetup = false
     @Published var isRunning = false
+    
+    func getPermissions() {
+        AVCaptureDevice.requestAccess(for: .audio) { value in
+            print("Permission: \(value)")
+        }
+    }
+    
+    func listDevices() {
+        print(DeviceManager.allDevices())
+    }
     
     func setupAudio() {
         // Get the current device(s)
@@ -49,6 +60,8 @@ class DeviceManager {
     let inputBus = UInt32(1) // stream from HAL input hardware
     var enabled = UInt32(1)
     var disabled = UInt32(0)
+    
+    
     
     enum AudioUnitInputCreationError: Error {
         case cantFindAudioHALOutputComponent
@@ -152,6 +165,92 @@ class DeviceManager {
         }
 
         return audioUnit
+    }
+}
+
+// For getting devices
+extension DeviceManager {
+    public class func allDevices() -> [(name: String, id: AudioObjectID)] {
+        return allDeviceIDs().map { (name: getDeviceName($0) ?? "Unknown - \($0)", id: $0) }
+    }
+    
+    class func allDeviceIDs() -> [AudioObjectID] {
+        let address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDevices,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMaster
+        )
+
+        let systemObjectID = AudioObjectID(kAudioObjectSystemObject)
+        var allIDs = [AudioObjectID]()
+        let status: OSStatus = getPropertyDataArray(systemObjectID, address: address, value: &allIDs, andDefaultValue: 0)
+
+        return noErr == status ? allIDs : []
+    }
+    
+    class func getPropertyDataSize<Q>(_ objectID: AudioObjectID,
+                                      address: AudioObjectPropertyAddress,
+                                      qualifierDataSize: UInt32?,
+                                      qualifierData: inout Q,
+                                      andSize size: inout UInt32) -> (OSStatus)
+    {
+        var theAddress = address
+
+        return AudioObjectGetPropertyDataSize(objectID, &theAddress, qualifierDataSize ?? UInt32(0), &qualifierData, &size)
+    }
+    
+    class func getPropertyDataArray<T, Q>(_ objectID: AudioObjectID,
+                                          address: AudioObjectPropertyAddress,
+                                          qualifierDataSize: UInt32?,
+                                          qualifierData: inout Q,
+                                          value: inout [T],
+                                          andDefaultValue defaultValue: T) -> OSStatus
+    {
+        var size = UInt32(0)
+        let sizeStatus = getPropertyDataSize(objectID, address: address, qualifierDataSize: qualifierDataSize, qualifierData: &qualifierData,
+                                             andSize: &size)
+
+        if noErr == sizeStatus {
+            value = [T](repeating: defaultValue, count: Int(size) / MemoryLayout<T>.size)
+        } else {
+            return sizeStatus
+        }
+
+        var theAddress = address
+        let status = AudioObjectGetPropertyData(objectID, &theAddress, qualifierDataSize ?? UInt32(0), &qualifierData, &size, &value)
+
+        return status
+    }
+    
+    class func getPropertyDataArray<T>(_ objectID: AudioObjectID, address: AudioObjectPropertyAddress, value: inout [T],
+                                       andDefaultValue defaultValue: T) -> OSStatus
+    {
+        var nilValue: ExpressibleByNilLiteral?
+
+        return getPropertyDataArray(objectID, address: address, qualifierDataSize: nil, qualifierData: &nilValue, value: &value,
+                                    andDefaultValue: defaultValue)
+    }
+    
+    class func getDeviceName(_ audioObjectID: AudioObjectID) -> String? {
+        var name: CFString = "" as CFString
+
+        let address = AudioObjectPropertyAddress(
+            mSelector: kAudioObjectPropertyName,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMaster
+        )
+
+        let status: OSStatus = getPropertyData(audioObjectID, address: address, andValue: &name)
+
+        return noErr == status ? (name as String) : nil
+    }
+    
+    class func getPropertyData<T>(_ objectID: AudioObjectID, address: AudioObjectPropertyAddress, andValue value: inout T) -> OSStatus {
+        var theAddress = address
+        var size = UInt32(MemoryLayout<T>.size)
+        let status = AudioObjectGetPropertyData(objectID, &theAddress, UInt32(0), nil, &size, &value)
+
+        return status
     }
 }
 

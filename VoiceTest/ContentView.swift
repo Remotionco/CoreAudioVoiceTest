@@ -13,6 +13,8 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Button("Setup") {
+                audioManager.getPermissions()
+                audioManager.listDevices()
                 audioManager.setupAudio()
             }
             
