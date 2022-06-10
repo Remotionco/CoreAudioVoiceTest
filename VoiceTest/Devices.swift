@@ -6,19 +6,20 @@
 //
 
 import Foundation
-
-struct DeviceType {
-    var isMicrophone: Bool
-    var isSpeaker: Bool
-}
+import CoreAudio
 
 // For getting devices
 extension DeviceManager {
-    public class func allDevices() -> [(name: String, id: AudioObjectID, deviceType: DeviceType)] {
-        return allDeviceIDs().map { (name: getDeviceName($0) ?? "Unknown - \($0)",
-                                     id: $0,
-                                     getDeviceType(objectID: $0)
-        ) }
+    public class func allDevices() -> [AudioDevice] {
+        return allDeviceIDs().map { getDevice($0) }
+    }
+    
+    class func getDevice(_ id: AudioObjectID) -> AudioDevice {
+        AudioDevice(id: id,
+                    name: getDeviceName(id) ?? "Unknown - \(id)",
+                    deviceType: getDeviceType(objectID: id),
+                    sampleRate: getActualSampleRateForDevice(id)
+        )
     }
     
     class func allDeviceIDs() -> [AudioObjectID] {
@@ -190,4 +191,23 @@ extension DeviceManager {
 
 func size<T>(of value: T) -> UInt32 {
     return UInt32(MemoryLayout.size(ofValue: value))
+}
+
+struct DeviceType: Equatable {
+    var isMicrophone: Bool
+    var isSpeaker: Bool
+}
+
+struct AudioDevice: Identifiable {
+    var id: AudioObjectID
+    var name: String
+    var deviceType: DeviceType
+    var sampleRate: Float64
+}
+
+extension AudioDevice: Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(name)
+    }
 }

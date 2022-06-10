@@ -15,7 +15,7 @@ private let contextPointer = UnsafeMutablePointer(&context)
 class AudioManager: ObservableObject {
     @Published var isSetup = false
     @Published var isRunning = false
-    @Published var listedDevices: [(name: String, id: AudioObjectID, deviceType: DeviceType)] = []
+    @Published var listedDevices: [AudioDevice] = []
         
     func getPermissions() {
         AVCaptureDevice.requestAccess(for: .audio) { value in
@@ -27,16 +27,15 @@ class AudioManager: ObservableObject {
         self.listedDevices = DeviceManager.allDevices()
     }
     
-    func setupAudio(inputDeviceID: AudioDeviceID, outputDeviceID: AudioDeviceID, subType: UnitSubType) {
+    func setupAudio(inputDevice: AudioDevice, outputDevice: AudioDevice, subType: UnitSubType) {
         // Setup the audio units
         do {
-            let sampleRate = DeviceManager.getNominalSampleRateForDevice(inputDeviceID)
-            print("Input sample rate: \(sampleRate) -- actual: \(DeviceManager.getActualSampleRateForDevice(inputDeviceID))")
-            let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: sampleRate)
+            let desc: AudioStreamBasicDescription =
+                FormatManager.makeAudioStreamBasicDescription(sampleRate: inputDevice.sampleRate)
             
             let inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
                                                                  subType: subType,
-                                                                 audioDeviceID: inputDeviceID,
+                                                                 audioDeviceID: inputDevice.id,
                                                                  audioStreamBasicDescription: desc)
             
             // Setup the buffers
@@ -48,16 +47,12 @@ class AudioManager: ObservableObject {
         }
         
         do {
-            var sampleRate: Float64 = DeviceManager.getNominalSampleRateForDevice(outputDeviceID)
-            print("Output sample rate: \(sampleRate) actual: \(DeviceManager.getActualSampleRateForDevice(outputDeviceID))")
-            // sampleRate = 24000 // NEEDED FOR AIRPODS!
-            
-            let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: sampleRate)
-            
+            let desc: AudioStreamBasicDescription =
+                FormatManager.makeAudioStreamBasicDescription(sampleRate: outputDevice.sampleRate)
             
             let outputUnit = try DeviceManager.makeAudioOutputUnit(rawContext: contextPointer,
                                                                    subType: subType,
-                                                                   audioDeviceID: outputDeviceID,
+                                                                   audioDeviceID: outputDevice.id,
                                                                    audioStreamBasicDescription: desc)
             // Setup the buffers
             try DeviceManager.setAudioUnitBufferSize(audioUnit: outputUnit, bufferSize: CircularBuffer.calculateSamplesPerBlock(sampleRate: desc.mSampleRate))
