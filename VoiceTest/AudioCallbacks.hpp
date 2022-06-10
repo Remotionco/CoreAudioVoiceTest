@@ -14,12 +14,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct CustomAudioContext {
+    void* _Nullable inputBuffer;
+} CustomAudioContext;
+
 OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,
                                     AudioUnitRenderActionFlags*  _Nonnull ioActionFlags,
                                     const AudioTimeStamp* _Nonnull inTimeStamp,
                                     UInt32 inBusNumber,
                                     UInt32 inNumberFrames,
                                     AudioBufferList* _Nullable ioData);
+
+
 
 #ifdef __cplusplus
 }

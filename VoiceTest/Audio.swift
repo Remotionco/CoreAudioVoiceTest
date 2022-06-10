@@ -9,13 +9,21 @@ import Foundation
 import AudioToolbox
 import AVFoundation
 
+private var context = CustomAudioContext()
+private let contextPointer = UnsafeMutablePointer(&context)
+
 class AudioManager: ObservableObject {
     @Published var isSetup = false
     @Published var isRunning = false
     
     @Published var listedDevices: [(name: String, id: AudioObjectID)] = []
+        
+    struct DeviceState {
+        var inputUnit: AudioUnit?
+        var outputUnit: AudioUnit?
+    }
     
-    private var deviceManager = DeviceManager()
+    var deviceState = DeviceState()
     
     func getPermissions() {
         AVCaptureDevice.requestAccess(for: .audio) { value in
@@ -28,11 +36,22 @@ class AudioManager: ObservableObject {
     }
     
     func setupAudio(deviceID: AudioDeviceID) {
+        // AudioStreamBasicDescription
+        let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: 44100)
+        
         // Setup the audio units
+        do {
+            deviceState.inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
+                                                 audioDeviceID: deviceID,
+                                                 audioStreamBasicDescription: desc)
+        } catch {
+            assertionFailure("Error: \(error)")
+        }
         
         // Setup the buffers
         
         isSetup = true
+        print("Setup success")
     }
     
     func toggleAudio() {
@@ -48,11 +67,55 @@ class AudioManager: ObservableObject {
     }
     
     func startAudio() {
-        
+        guard let inputUnit = deviceState.inputUnit else {
+            assertionFailure()
+            return
+        }
+        do {
+            try startAudioUnit(inputUnit)
+        } catch {
+            assertionFailure("Start error: \(error)")
+        }
+        self.isRunning = true
+        print("Started")
+    }
+    
+    enum CustomAudioPipelineError: Error {
+        case couldNotInitialize(error: OSStatus)
+        case couldNotStart(error: OSStatus)
+        case couldNotSetBufferSize(error: OSStatus)
+    }
+    
+    private func startAudioUnit(_ audioUnit: AudioUnit) throws {
+        var error: OSStatus = noErr
+        error = AudioUnitInitialize(audioUnit)
+        guard error == noErr else {
+            throw CustomAudioPipelineError.couldNotInitialize(error: error)
+        }
+
+        error = AudioOutputUnitStart(audioUnit)
+        guard error == noErr else {
+            throw CustomAudioPipelineError.couldNotStart(error: error)
+        }
     }
     
     func stopAudio() {
+        guard let inputUnit = deviceState.inputUnit else {
+            assertionFailure()
+            return
+        }
+        stopAudioUnit(inputUnit)
+        self.isRunning = false
+    }
+    
+    private func stopAudioUnit(_ audioUnit: AudioUnit) {
+        var error: OSStatus = noErr
+
+        error = AudioOutputUnitStop(audioUnit)
         
+        if error != noErr {
+            assertionFailure("Stop error: \(error)")
+        }
     }
 }
 
@@ -61,10 +124,10 @@ class DeviceManager {
     var activeOutputID: AudioObjectID?
     
     // Core Audio constants
-    let outputBus = UInt32(0) // stream to output hardware
-    let inputBus = UInt32(1) // stream from HAL input hardware
-    var enabled = UInt32(1)
-    var disabled = UInt32(0)
+    static let outputBus = UInt32(0) // stream to output hardware
+    static let inputBus = UInt32(1) // stream from HAL input hardware
+    static var enabled = UInt32(1)
+    static var disabled = UInt32(0)
     
     enum AudioUnitInputCreationError: Error {
         case cantFindAudioHALOutputComponent
@@ -79,7 +142,7 @@ class DeviceManager {
         case unknown
     }
     
-    func makeAudioComponentDescriptionHALOutput() -> AudioComponentDescription {
+    private class func makeAudioComponentDescriptionHALOutput() -> AudioComponentDescription {
         var audioComponentDescription = AudioComponentDescription()
 
         audioComponentDescription.componentType = kAudioUnitType_Output
@@ -91,7 +154,7 @@ class DeviceManager {
         return audioComponentDescription
     }
     
-    func makeAudioInputUnit(rawContext: UnsafeMutableRawPointer,
+    class func makeAudioInputUnit(rawContext: UnsafeMutableRawPointer,
                             audioDeviceID: AudioObjectID,
                             audioStreamBasicDescription: AudioStreamBasicDescription) throws -> AudioUnit
     {
@@ -181,7 +244,7 @@ extension DeviceManager {
         let address = AudioObjectPropertyAddress(
             mSelector: kAudioHardwarePropertyDevices,
             mScope: kAudioObjectPropertyScopeGlobal,
-            mElement: kAudioObjectPropertyElementMaster
+            mElement: kAudioObjectPropertyElementMain
         )
 
         let systemObjectID = AudioObjectID(kAudioObjectSystemObject)
@@ -240,7 +303,7 @@ extension DeviceManager {
         let address = AudioObjectPropertyAddress(
             mSelector: kAudioObjectPropertyName,
             mScope: kAudioObjectPropertyScopeGlobal,
-            mElement: kAudioObjectPropertyElementMaster
+            mElement: kAudioObjectPropertyElementMain
         )
 
         let status: OSStatus = getPropertyData(audioObjectID, address: address, andValue: &name)
@@ -254,6 +317,28 @@ extension DeviceManager {
         let status = AudioObjectGetPropertyData(objectID, &theAddress, UInt32(0), nil, &size, &value)
 
         return status
+    }
+}
+
+class FormatManager {
+    class func makeAudioStreamBasicDescription(sampleRate: Float64) -> AudioStreamBasicDescription {
+        var audioStreamBasicDescription = AudioStreamBasicDescription()
+
+        audioStreamBasicDescription.mSampleRate = sampleRate
+        audioStreamBasicDescription.mFormatID = kAudioFormatLinearPCM
+
+        audioStreamBasicDescription.mFormatFlags = kAudioFormatFlagIsFloat
+            | kAudioFormatFlagsNativeEndian
+            | kAudioFormatFlagIsPacked
+            | kAudioFormatFlagIsNonInterleaved
+
+        audioStreamBasicDescription.mChannelsPerFrame = 1
+        audioStreamBasicDescription.mFramesPerPacket = 1
+        audioStreamBasicDescription.mBitsPerChannel = 32
+        audioStreamBasicDescription.mBytesPerFrame = audioStreamBasicDescription.mBitsPerChannel / 8 * audioStreamBasicDescription.mChannelsPerFrame
+        audioStreamBasicDescription.mBytesPerPacket = audioStreamBasicDescription.mBytesPerFrame * audioStreamBasicDescription.mFramesPerPacket
+
+        return audioStreamBasicDescription
     }
 }
 

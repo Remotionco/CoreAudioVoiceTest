@@ -14,5 +14,7 @@ OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,
                                     UInt32 inNumberFrames,
                                     AudioBufferList* _Nullable ioData) {
     
+    printf("Callback at %f\n", inTimeStamp->mSampleTime);
+    
     return noErr;
 }
