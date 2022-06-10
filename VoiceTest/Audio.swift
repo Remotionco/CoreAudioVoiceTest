@@ -13,6 +13,10 @@ class AudioManager: ObservableObject {
     @Published var isSetup = false
     @Published var isRunning = false
     
+    @Published var listedDevices: [(name: String, id: AudioObjectID)] = []
+    
+    private var deviceManager = DeviceManager()
+    
     func getPermissions() {
         AVCaptureDevice.requestAccess(for: .audio) { value in
             print("Permission: \(value)")
@@ -20,12 +24,10 @@ class AudioManager: ObservableObject {
     }
     
     func listDevices() {
-        print(DeviceManager.allDevices())
+        self.listedDevices = DeviceManager.allDevices()
     }
     
-    func setupAudio() {
-        // Get the current device(s)
-        
+    func setupAudio(deviceID: AudioDeviceID) {
         // Setup the audio units
         
         // Setup the buffers
@@ -55,13 +57,14 @@ class AudioManager: ObservableObject {
 }
 
 class DeviceManager {
+    var activeInputID: AudioObjectID?
+    var activeOutputID: AudioObjectID?
+    
     // Core Audio constants
     let outputBus = UInt32(0) // stream to output hardware
     let inputBus = UInt32(1) // stream from HAL input hardware
     var enabled = UInt32(1)
     var disabled = UInt32(0)
-    
-    
     
     enum AudioUnitInputCreationError: Error {
         case cantFindAudioHALOutputComponent
