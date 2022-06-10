@@ -7,11 +7,18 @@
 
 import Foundation
 
+struct DeviceType {
+    var isMicrophone: Bool
+    var isSpeaker: Bool
+}
 
 // For getting devices
 extension DeviceManager {
-    public class func allDevices() -> [(name: String, id: AudioObjectID)] {
-        return allDeviceIDs().map { (name: getDeviceName($0) ?? "Unknown - \($0)", id: $0) }
+    public class func allDevices() -> [(name: String, id: AudioObjectID, deviceType: DeviceType)] {
+        return allDeviceIDs().map { (name: getDeviceName($0) ?? "Unknown - \($0)",
+                                     id: $0,
+                                     getDeviceType(objectID: $0)
+        ) }
     }
     
     class func allDeviceIDs() -> [AudioObjectID] {
@@ -96,12 +103,69 @@ extension DeviceManager {
         return noErr == status ? (name as String) : nil
     }
     
-    class func getPropertyData<T>(_ objectID: AudioObjectID, address: AudioObjectPropertyAddress, andValue value: inout T) -> OSStatus {
+    class func getPropertyData<T>(_ objectID: AudioObjectID,
+                                  address: AudioObjectPropertyAddress,
+                                  andValue value: inout T) -> OSStatus {
         var theAddress = address
         var size = UInt32(MemoryLayout<T>.size)
         let status = AudioObjectGetPropertyData(objectID, &theAddress, UInt32(0), nil, &size, &value)
 
         return status
+    }
+    
+    class func getDeviceType(objectID: AudioObjectID) -> DeviceType {
+        var deviceType: DeviceType = DeviceType(isMicrophone: false, isSpeaker: false)
+        
+        var inputAddress: AudioObjectPropertyAddress = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyStreams,
+            mScope: kAudioDevicePropertyScopeInput,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        
+        var status: OSStatus = noErr
+        var dataSize: UInt32 = 0
+        status = AudioObjectGetPropertyDataSize(objectID,
+                                                    &inputAddress,
+                                                    0,
+                                                    nil,
+                                                    &dataSize)
+        
+        if status != noErr {
+            assertionFailure("Error")
+            return deviceType
+        }
+        
+        var streamCount: UInt32 = 0
+        streamCount = dataSize / 4
+        
+        if streamCount > 0 {
+            deviceType.isMicrophone = true
+        }
+        
+        var outputAddress: AudioObjectPropertyAddress = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyStreams,
+            mScope: kAudioDevicePropertyScopeOutput,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        
+        dataSize = 0
+        
+        status = AudioObjectGetPropertyDataSize(objectID,
+                                                &outputAddress,
+                                                0,
+                                                nil,
+                                                &dataSize)
+        if status != noErr {
+            assertionFailure("Error")
+            return deviceType
+        }
+        
+        streamCount = dataSize / 4
+        if streamCount > 0 {
+            deviceType.isSpeaker = true
+        }
+        
+        return deviceType
     }
 }
 

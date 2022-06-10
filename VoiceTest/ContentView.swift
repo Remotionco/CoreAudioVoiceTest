@@ -21,7 +21,7 @@ struct ContentView: View {
             HStack {
                 VStack {
                     Text("Input")
-                    List(audioManager.listedDevices, id: \.id, selection: $selectedInputDevice) { device in
+                    List(audioManager.listedDevices.filter { $0.deviceType.isMicrophone }, id: \.id, selection: $selectedInputDevice) { device in
                         Text(device.0).onTapGesture {
                             selectedInputDevice = device.id
                         }
@@ -30,7 +30,7 @@ struct ContentView: View {
                 
                 VStack {
                     Text("Output")
-                    List(audioManager.listedDevices, id: \.id, selection: $selectedOutputDevice) { device in
+                    List(audioManager.listedDevices.filter { $0.deviceType.isSpeaker }, id: \.id, selection: $selectedOutputDevice) { device in
                         Text(device.0).onTapGesture {
                             selectedOutputDevice = device.id
                         }

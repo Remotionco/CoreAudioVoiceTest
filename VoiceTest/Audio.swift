@@ -15,7 +15,7 @@ private let contextPointer = UnsafeMutablePointer(&context)
 class AudioManager: ObservableObject {
     @Published var isSetup = false
     @Published var isRunning = false
-    @Published var listedDevices: [(name: String, id: AudioObjectID)] = []
+    @Published var listedDevices: [(name: String, id: AudioObjectID, deviceType: DeviceType)] = []
         
     func getPermissions() {
         AVCaptureDevice.requestAccess(for: .audio) { value in
@@ -93,10 +93,16 @@ class AudioManager: ObservableObject {
         }
         do {
             try startAudioUnit(inputUnit)
+        } catch {
+            assertionFailure("Start input error: \(error)")
+        }
+        
+        do {
             try startAudioUnit(outputUnit)
         } catch {
-            assertionFailure("Start error: \(error)")
+            assertionFailure("Start output error: \(error)")
         }
+        
         self.isRunning = true
         print("Started")
     }
