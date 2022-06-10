@@ -14,6 +14,8 @@ struct ContentView: View {
     @State private var selectedInputDevice: AudioDeviceID?
     @State private var selectedOutputDevice: AudioDeviceID?
     
+    @State private var voiceProcessing = true
+    
     var body: some View {
         VStack {
             HStack {
@@ -41,6 +43,8 @@ struct ContentView: View {
                 audioManager.listDevices()
             }
             
+            Toggle("VPIO", isOn: $voiceProcessing)
+            
             Button("Setup") {
                 guard let selectedInputDevice = selectedInputDevice else {
                     print("Select a device!")
@@ -52,7 +56,8 @@ struct ContentView: View {
                 }
 
                 audioManager.setupAudio(inputDeviceID: selectedInputDevice,
-                                        outputDeviceID: selectedOutputDevice)
+                                        outputDeviceID: selectedOutputDevice,
+                                        subType: voiceProcessing ? .VPIO : .HAL)
             }
             .disabled(selectedInputDevice == nil)
             

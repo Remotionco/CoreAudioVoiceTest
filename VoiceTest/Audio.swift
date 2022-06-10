@@ -27,7 +27,7 @@ class AudioManager: ObservableObject {
         self.listedDevices = DeviceManager.allDevices()
     }
     
-    func setupAudio(inputDeviceID: AudioDeviceID, outputDeviceID: AudioDeviceID) {
+    func setupAudio(inputDeviceID: AudioDeviceID, outputDeviceID: AudioDeviceID, subType: UnitSubType) {
         // Setup the audio units
         do {
             let sampleRate = DeviceManager.getSampleRateForDevice(inputDeviceID)
@@ -35,6 +35,7 @@ class AudioManager: ObservableObject {
             let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: sampleRate)
             
             let inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
+                                                                 subType: subType,
                                                                        audioDeviceID: inputDeviceID,
                                                                        audioStreamBasicDescription: desc)
             
@@ -53,6 +54,7 @@ class AudioManager: ObservableObject {
             
             
             let outputUnit = try DeviceManager.makeAudioOutputUnit(rawContext: contextPointer,
+                                                                   subType: subType,
                                                                        audioDeviceID: outputDeviceID,
                                                                        audioStreamBasicDescription: desc)
             // Setup the buffers
@@ -137,15 +139,28 @@ class AudioManager: ObservableObject {
     }
 }
 
+enum UnitSubType{
+    case HAL
+    case VPIO
+    
+    var subTypeValue : UInt32 {
+        switch self {
+        case .HAL:
+            return kAudioUnitSubType_HALOutput
+        case .VPIO:
+            return kAudioUnitSubType_VoiceProcessingIO
+        }
+    }
+}
+
 class DeviceManager {
     var activeInputID: AudioObjectID?
     var activeOutputID: AudioObjectID?
     
-    private class func makeAudioComponentDescriptionHALOutput() -> AudioComponentDescription {
+    private class func makeAudioComponentDescriptionHALOutput(subType: UnitSubType) -> AudioComponentDescription {
         var audioComponentDescription = AudioComponentDescription()
-
         audioComponentDescription.componentType = kAudioUnitType_Output
-        audioComponentDescription.componentSubType = kAudioUnitSubType_VoiceProcessingIO
+        audioComponentDescription.componentSubType = subType.subTypeValue
         audioComponentDescription.componentManufacturer = kAudioUnitManufacturer_Apple
         audioComponentDescription.componentFlags = 0
         audioComponentDescription.componentFlagsMask = 0
@@ -154,10 +169,11 @@ class DeviceManager {
     }
     
     class func makeAudioInputUnit(rawContext: UnsafeMutableRawPointer,
+                                  subType: UnitSubType,
                             audioDeviceID: AudioObjectID,
                             audioStreamBasicDescription: AudioStreamBasicDescription) throws -> AudioUnit
     {
-        var audioComponentDescription: AudioComponentDescription = makeAudioComponentDescriptionHALOutput()
+        var audioComponentDescription: AudioComponentDescription = makeAudioComponentDescriptionHALOutput(subType: subType)
 
         guard let audioComponent = AudioComponentFindNext(nil, &audioComponentDescription) else {
             throw AudioUnitInputCreationError.cantFindAudioHALOutputComponent
@@ -240,10 +256,11 @@ class DeviceManager {
     }
     
     class func makeAudioOutputUnit(rawContext: UnsafeMutableRawPointer,
+                                   subType: UnitSubType,
                                    audioDeviceID: AudioObjectID,
                                    audioStreamBasicDescription: AudioStreamBasicDescription) throws -> AudioUnit
     {
-        var audioComponentDescription: AudioComponentDescription = makeAudioComponentDescriptionHALOutput()
+        var audioComponentDescription: AudioComponentDescription = makeAudioComponentDescriptionHALOutput(subType: subType)
 
         guard let audioComponent = AudioComponentFindNext(nil, &audioComponentDescription) else {
             throw AudioUnitOutputCreationError.cantFindAudioHALOutputComponent
