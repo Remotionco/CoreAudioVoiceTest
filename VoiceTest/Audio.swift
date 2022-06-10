@@ -36,7 +36,9 @@ class AudioManager: ObservableObject {
     
     func setupAudio(deviceID: AudioDeviceID) {
         // AudioStreamBasicDescription
-        let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: 44100)
+        let sampleRate = DeviceManager.getSampleRateForDevice(deviceID)
+        print("Sample rate: \(sampleRate)")
+        let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: sampleRate)
         
         // Setup the audio units
         do {

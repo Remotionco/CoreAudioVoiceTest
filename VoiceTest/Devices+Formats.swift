@@ -28,6 +28,17 @@ extension DeviceManager {
         return noErr == status ? allIDs : []
     }
     
+    class func getSampleRateForDevice(_ objectID: AudioObjectID) -> Float64 {
+        var kNominalSampleRateAddress: AudioObjectPropertyAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyNominalSampleRate, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
+        var size = UInt32(MemoryLayout<Float64>.size)
+        var value: Float64 = 0.0
+        let status = AudioObjectGetPropertyData(objectID, &kNominalSampleRateAddress, UInt32(0), nil, &size, &value)
+        if status != noErr {
+            assertionFailure("Error: \(status)")
+        }
+        return value
+    }
+    
     class func getPropertyDataSize<Q>(_ objectID: AudioObjectID,
                                       address: AudioObjectPropertyAddress,
                                       qualifierDataSize: UInt32?,
