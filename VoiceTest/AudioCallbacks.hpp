@@ -17,6 +17,7 @@ extern "C" {
 
 typedef struct CustomAudioContext {
     AudioUnit _Nullable inputAudioUnit;
+    AudioUnit _Nullable outputAudioUnit;
     void* _Nullable inputBuffer;
 } CustomAudioContext;
 
@@ -27,7 +28,12 @@ OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,
                                     UInt32 inNumberFrames,
                                     AudioBufferList* _Nullable ioData);
 
-
+OSStatus AudioUnitPlayoutCallback(void* _Nonnull inRefCon,
+                                        AudioUnitRenderActionFlags*  _Nonnull ioActionFlags,
+                                        const AudioTimeStamp* _Nonnull inTimeStamp,
+                                        UInt32 inBusNumber,
+                                        UInt32 inNumberFrames,
+                                        AudioBufferList* _Nullable ioData);
 
 #ifdef __cplusplus
 }

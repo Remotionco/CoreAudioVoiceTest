@@ -57,3 +57,16 @@ OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,
     
     return noErr;
 }
+
+OSStatus AudioUnitPlayoutCallback(void* _Nonnull inRefCon,
+                                        AudioUnitRenderActionFlags*  _Nonnull ioActionFlags,
+                                        const AudioTimeStamp* _Nonnull inTimeStamp,
+                                        UInt32 inBusNumber,
+                                        UInt32 inNumberFrames,
+                                  AudioBufferList* _Nullable ioData) {
+    CustomAudioContext* context = reinterpret_cast<CustomAudioContext*>(inRefCon);
+    
+    printf("Playback\n");
+    
+    return noErr;
+}

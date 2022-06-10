@@ -12,14 +12,31 @@ struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     
     @State private var selectedInputDevice: AudioDeviceID?
+    @State private var selectedOutputDevice: AudioDeviceID?
     
     var body: some View {
         VStack {
-            List(audioManager.listedDevices, id: \.id, selection: $selectedInputDevice) { device in
-                Text(device.0).onTapGesture {
-                    selectedInputDevice = device.id
+            HStack {
+                VStack {
+                    Text("Input")
+                    List(audioManager.listedDevices, id: \.id, selection: $selectedInputDevice) { device in
+                        Text(device.0).onTapGesture {
+                            selectedInputDevice = device.id
+                        }
+                    }
+                }
+                
+                
+                VStack {
+                    Text("Output")
+                    List(audioManager.listedDevices, id: \.id, selection: $selectedOutputDevice) { device in
+                        Text(device.0).onTapGesture {
+                            selectedOutputDevice = device.id
+                        }
+                    }
                 }
             }
+            
             
             Button("List") {
                 audioManager.getPermissions()
@@ -27,7 +44,17 @@ struct ContentView: View {
             }
             
             Button("Setup") {
-                audioManager.setupAudio(deviceID: selectedInputDevice ?? 0)
+                guard let selectedInputDevice = selectedInputDevice else {
+                    print("Select a device!")
+                    return
+                }
+                guard let selectedOutputDevice = selectedOutputDevice else {
+                    print("Select a device!")
+                    return
+                }
+
+                audioManager.setupAudio(inputDeviceID: selectedInputDevice,
+                                        outputDeviceID: selectedOutputDevice)
             }
             .disabled(selectedInputDevice == nil)
             
