@@ -16,6 +16,7 @@ extern "C" {
 #endif
 
 typedef struct CustomAudioContext {
+    AudioUnit _Nullable inputAudioUnit;
     void* _Nullable inputBuffer;
 } CustomAudioContext;
 

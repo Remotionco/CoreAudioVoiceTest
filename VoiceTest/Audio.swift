@@ -42,9 +42,12 @@ class AudioManager: ObservableObject {
         
         // Setup the audio units
         do {
-            deviceState.inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
-                                                 audioDeviceID: deviceID,
-                                                 audioStreamBasicDescription: desc)
+            let inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
+                                                                       audioDeviceID: deviceID,
+                                                                       audioStreamBasicDescription: desc)
+            deviceState.inputUnit = inputUnit
+            
+            contextPointer.pointee.inputAudioUnit = inputUnit
         } catch {
             assertionFailure("Error: \(error)")
         }
