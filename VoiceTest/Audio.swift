@@ -31,12 +31,15 @@ class AudioManager: ObservableObject {
         // Setup the audio units
         do {
             let sampleRate = DeviceManager.getSampleRateForDevice(inputDeviceID)
-            print("Sample rate: \(sampleRate)")
+            print("Input sample rate: \(sampleRate)")
             let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: sampleRate)
             
             let inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
                                                                        audioDeviceID: inputDeviceID,
                                                                        audioStreamBasicDescription: desc)
+            
+            // Setup the buffers
+            try DeviceManager.setAudioUnitBufferSize(audioUnit: inputUnit, bufferSize: CircularBuffer.calculateSamplesPerBlock(sampleRate: desc.mSampleRate))
             
             contextPointer.pointee.inputAudioUnit = inputUnit
         } catch {
@@ -45,20 +48,21 @@ class AudioManager: ObservableObject {
         
         do {
             let sampleRate = DeviceManager.getSampleRateForDevice(outputDeviceID)
-            print("Sample rate: \(sampleRate)")
+            print("Output sample rate: \(sampleRate)")
             let desc: AudioStreamBasicDescription = FormatManager.makeAudioStreamBasicDescription(sampleRate: sampleRate)
             
             
             let outputUnit = try DeviceManager.makeAudioOutputUnit(rawContext: contextPointer,
                                                                        audioDeviceID: outputDeviceID,
                                                                        audioStreamBasicDescription: desc)
+            // Setup the buffers
+            try DeviceManager.setAudioUnitBufferSize(audioUnit: outputUnit, bufferSize: CircularBuffer.calculateSamplesPerBlock(sampleRate: desc.mSampleRate))
             
             contextPointer.pointee.outputAudioUnit = outputUnit
         } catch {
             assertionFailure("Input error: \(error)")
         }
         
-        // Setup the buffers
         
         isSetup = true
         print("Setup success")
@@ -93,12 +97,6 @@ class AudioManager: ObservableObject {
         }
         self.isRunning = true
         print("Started")
-    }
-    
-    enum CustomAudioPipelineError: Error {
-        case couldNotInitialize(error: OSStatus)
-        case couldNotStart(error: OSStatus)
-        case couldNotSetBufferSize(error: OSStatus)
     }
     
     private func startAudioUnit(_ audioUnit: AudioUnit) throws {
@@ -230,6 +228,11 @@ class DeviceManager {
         guard error == noErr else {
             throw AudioUnitInputCreationError.cantSetInputCallback(error: error)
         }
+        
+        CircularBuffer.destroy(contextPointer.pointee.inputBuffer)
+        contextPointer.pointee.inputBuffer = CircularBuffer.makeCircularBuffer(
+            sampleRate: audioStreamBasicDescription.mSampleRate
+        )
 
         return audioUnit
     }
@@ -314,6 +317,26 @@ class DeviceManager {
 
         return audioUnit
     }
+    
+    class func setAudioUnitBufferSize(audioUnit: AudioUnit?, bufferSize: Int) throws {
+        guard bufferSize > 0, let audioUnit = audioUnit else {
+            return
+        }
+        
+        print("Set buffer to: \(bufferSize)")
+        
+        var bufferSize = UInt32(bufferSize)
+        let error = AudioUnitSetProperty(audioUnit,
+                                         kAudioDevicePropertyBufferFrameSize,
+                                         kAudioUnitScope_Global,
+                                         0,
+                                         &bufferSize,
+                                         size(of: bufferSize))
+        guard error == noErr else {
+            assertionFailure("Can't set buffer size")
+            throw CustomAudioPipelineError.couldNotSetBufferSize(error: error)
+        }
+    }
 }
 
 extension DeviceManager {
@@ -324,6 +347,12 @@ extension DeviceManager {
     static var enabled = UInt32(1)
     static var disabled = UInt32(0)
     
+}
+
+enum CustomAudioPipelineError: Error {
+    case couldNotInitialize(error: OSStatus)
+    case couldNotStart(error: OSStatus)
+    case couldNotSetBufferSize(error: OSStatus)
 }
 
 enum AudioUnitOutputCreationError: Error {

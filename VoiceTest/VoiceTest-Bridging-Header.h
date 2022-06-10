@@ -3,3 +3,4 @@
 //
 
 #include "AudioCallbacks.hpp"
+#include "CircularBufferBridge.hpp"
