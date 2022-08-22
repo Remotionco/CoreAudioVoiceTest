@@ -7,7 +7,7 @@
 //
 
 #include "CircularBufferBridge.hpp"
-#include <TPCircularBuffer.h>
+#include "TPCircularBuffer.h"
 
 void* CircularBufferCreate(int length, bool atomic){
     TPCircularBuffer* circularBuffer = new TPCircularBuffer();

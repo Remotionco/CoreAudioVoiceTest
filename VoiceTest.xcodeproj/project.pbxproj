@@ -14,12 +14,13 @@
 		D23DA677285382A00061CAE0 /* AudioCallbacks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */; };
 		D23DA679285384720061CAE0 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA678285384720061CAE0 /* Audio.swift */; };
 		D23DA67B285391380061CAE0 /* Devices.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA67A285391380061CAE0 /* Devices.swift */; };
-		D23DA67E28539D5B0061CAE0 /* TPCircularBuffer in Frameworks */ = {isa = PBXBuildFile; productRef = D23DA67D28539D5B0061CAE0 /* TPCircularBuffer */; };
 		D23DA68128539DA10061CAE0 /* CircularBufferBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D23DA67F28539DA10061CAE0 /* CircularBufferBridge.cpp */; };
 		D23DA68428539DDB0061CAE0 /* CircularBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA68328539DDB0061CAE0 /* CircularBuffer.swift */; };
 		D23DA6862853D2390061CAE0 /* Formats.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA6852853D2390061CAE0 /* Formats.swift */; };
 		D23DA6882853E5AF0061CAE0 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA6872853E5AF0061CAE0 /* Types.swift */; };
 		D23DA68A285400130061CAE0 /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = D23DA689285400130061CAE0 /* Readme.md */; };
+		D2FD39CA28B3FD4B00C8C428 /* TPCircularBuffer+AudioBufferList.c in Sources */ = {isa = PBXBuildFile; fileRef = D2FD39C828B3FD4B00C8C428 /* TPCircularBuffer+AudioBufferList.c */; };
+		D2FD39CB28B3FD4B00C8C428 /* TPCircularBuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D2FD39C928B3FD4B00C8C428 /* TPCircularBuffer.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,10 @@
 		D23DA6852853D2390061CAE0 /* Formats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formats.swift; sourceTree = "<group>"; };
 		D23DA6872853E5AF0061CAE0 /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
 		D23DA689285400130061CAE0 /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
+		D2FD39C628B3FD3D00C8C428 /* TPCircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPCircularBuffer.h; sourceTree = "<group>"; };
+		D2FD39C728B3FD3D00C8C428 /* TPCircularBuffer+AudioBufferList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TPCircularBuffer+AudioBufferList.h"; sourceTree = "<group>"; };
+		D2FD39C828B3FD4B00C8C428 /* TPCircularBuffer+AudioBufferList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "TPCircularBuffer+AudioBufferList.c"; sourceTree = "<group>"; };
+		D2FD39C928B3FD4B00C8C428 /* TPCircularBuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TPCircularBuffer.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,7 +53,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D23DA67E28539D5B0061CAE0 /* TPCircularBuffer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,6 +111,10 @@
 				D23DA68328539DDB0061CAE0 /* CircularBuffer.swift */,
 				D23DA67F28539DA10061CAE0 /* CircularBufferBridge.cpp */,
 				D23DA68028539DA10061CAE0 /* CircularBufferBridge.hpp */,
+				D2FD39C628B3FD3D00C8C428 /* TPCircularBuffer.h */,
+				D2FD39C728B3FD3D00C8C428 /* TPCircularBuffer+AudioBufferList.h */,
+				D2FD39C928B3FD4B00C8C428 /* TPCircularBuffer.c */,
+				D2FD39C828B3FD4B00C8C428 /* TPCircularBuffer+AudioBufferList.c */,
 			);
 			path = CircularBuffer;
 			sourceTree = "<group>";
@@ -128,7 +136,6 @@
 			);
 			name = VoiceTest;
 			packageProductDependencies = (
-				D23DA67D28539D5B0061CAE0 /* TPCircularBuffer */,
 			);
 			productName = VoiceTest;
 			productReference = D23DA65E28537EB60061CAE0 /* VoiceTest.app */;
@@ -160,7 +167,6 @@
 			);
 			mainGroup = D23DA65528537EB60061CAE0;
 			packageReferences = (
-				D23DA67C28539D5B0061CAE0 /* XCRemoteSwiftPackageReference "TPCircularBuffer" */,
 			);
 			productRefGroup = D23DA65F28537EB60061CAE0 /* Products */;
 			projectDirPath = "";
@@ -189,9 +195,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D2FD39CB28B3FD4B00C8C428 /* TPCircularBuffer.c in Sources */,
 				D23DA679285384720061CAE0 /* Audio.swift in Sources */,
 				D23DA68428539DDB0061CAE0 /* CircularBuffer.swift in Sources */,
 				D23DA677285382A00061CAE0 /* AudioCallbacks.cpp in Sources */,
+				D2FD39CA28B3FD4B00C8C428 /* TPCircularBuffer+AudioBufferList.c in Sources */,
 				D23DA67B285391380061CAE0 /* Devices.swift in Sources */,
 				D23DA6862853D2390061CAE0 /* Formats.swift in Sources */,
 				D23DA66428537EB60061CAE0 /* ContentView.swift in Sources */,
@@ -402,25 +410,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		D23DA67C28539D5B0061CAE0 /* XCRemoteSwiftPackageReference "TPCircularBuffer" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mman/TPCircularBuffer";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		D23DA67D28539D5B0061CAE0 /* TPCircularBuffer */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D23DA67C28539D5B0061CAE0 /* XCRemoteSwiftPackageReference "TPCircularBuffer" */;
-			productName = TPCircularBuffer;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D23DA65628537EB60061CAE0 /* Project object */;
 }
