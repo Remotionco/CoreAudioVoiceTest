@@ -34,7 +34,7 @@ OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,
     inputAudioBufferList.mBuffers[0].mData = NULL;
     
     OSStatus status = AudioUnitRender(
-        context->inputAudioUnit,
+        context->audioUnit,
         ioActionFlags,
         inTimeStamp,
         inBusNumber,

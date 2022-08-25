@@ -20,37 +20,46 @@ class AudioManager: ObservableObject {
     func setupAudio(inputDevice: AudioDevice, outputDevice: AudioDevice, subType: UnitSubType) {
         // Setup the audio units
         do {
-            let desc: AudioStreamBasicDescription =
+            let inputDesc: AudioStreamBasicDescription =
                 FormatManager.makeAudioStreamBasicDescription(sampleRate: inputDevice.sampleRate)
             
-            let inputUnit = try DeviceManager.makeAudioInputUnit(rawContext: contextPointer,
-                                                                 subType: subType,
-                                                                 audioDeviceID: inputDevice.id,
-                                                                 audioStreamBasicDescription: desc)
+            let outputDesc: AudioStreamBasicDescription =
+                FormatManager.makeAudioStreamBasicDescription(sampleRate: outputDevice.sampleRate)
+            
+            let audioUnit = try DeviceManager.makeUniversalAudioUnit(
+                rawContext: contextPointer,
+                subType: subType,
+                inputAudioDeviceID: inputDevice.id,
+                inputAudioStreamBasicDescription: inputDesc,
+                outputAudioDeviceID: outputDevice.id,
+                outputAudioStreamBasicDescription: outputDesc)
             
             // Setup the buffers
-            try DeviceManager.setAudioUnitBufferSize(audioUnit: inputUnit, bufferSize: CircularBuffer.calculateSamplesPerBlock(sampleRate: desc.mSampleRate))
+            // TODO: UNIVERSAL BUFFERSIZE FUNCTION
+            try DeviceManager.setAudioUnitBufferSize(audioUnit: audioUnit,
+                                                     bufferSize: CircularBuffer
+                .calculateSamplesPerBlock(sampleRate: inputDesc.mSampleRate))
             
-            contextPointer.pointee.inputAudioUnit = inputUnit
+            contextPointer.pointee.audioUnit = audioUnit
         } catch {
             assertionFailure("Input error: \(error)")
         }
-        
-        do {
-            let desc: AudioStreamBasicDescription =
-                FormatManager.makeAudioStreamBasicDescription(sampleRate: outputDevice.sampleRate)
-            
-            let outputUnit = try DeviceManager.makeAudioOutputUnit(rawContext: contextPointer,
-                                                                   subType: subType,
-                                                                   audioDeviceID: outputDevice.id,
-                                                                   audioStreamBasicDescription: desc)
-            // Setup the buffers
-            try DeviceManager.setAudioUnitBufferSize(audioUnit: outputUnit, bufferSize: CircularBuffer.calculateSamplesPerBlock(sampleRate: desc.mSampleRate))
-            
-            contextPointer.pointee.outputAudioUnit = outputUnit
-        } catch {
-            assertionFailure("Output error: \(error)")
-        }
+//
+//        do {
+//            let desc: AudioStreamBasicDescription =
+//                FormatManager.makeAudioStreamBasicDescription(sampleRate: outputDevice.sampleRate)
+//
+//            let outputUnit = try DeviceManager.makeAudioOutputUnit(rawContext: contextPointer,
+//                                                                   subType: subType,
+//                                                                   audioDeviceID: outputDevice.id,
+//                                                                   audioStreamBasicDescription: desc)
+//            // Setup the buffers
+//            try DeviceManager.setAudioUnitBufferSize(audioUnit: outputUnit, bufferSize: CircularBuffer.calculateSamplesPerBlock(sampleRate: desc.mSampleRate))
+//
+//            contextPointer.pointee.outputAudioUnit = outputUnit
+//        } catch {
+//            assertionFailure("Output error: \(error)")
+//        }
         
         
         isSetup = true
@@ -58,24 +67,14 @@ class AudioManager: ObservableObject {
     }
     
     func startAudio() {
-        guard let inputUnit = contextPointer.pointee.inputAudioUnit else {
-            assertionFailure()
-            return
-        }
-        guard let outputUnit = contextPointer.pointee.outputAudioUnit else {
+        guard let audioUnit = contextPointer.pointee.audioUnit else {
             assertionFailure()
             return
         }
         do {
-            try startAudioUnit(inputUnit)
+            try startAudioUnit(audioUnit)
         } catch {
-            assertionFailure("Start input error: \(error)")
-        }
-        
-        do {
-            try startAudioUnit(outputUnit)
-        } catch {
-            assertionFailure("Start output error: \(error)")
+            assertionFailure("Start audioUnit error: \(error)")
         }
         
         self.isRunning = true
@@ -96,16 +95,11 @@ class AudioManager: ObservableObject {
     }
     
     func stopAudio() {
-        guard let inputUnit = contextPointer.pointee.inputAudioUnit else {
+        guard let audioUnit = contextPointer.pointee.audioUnit else {
             assertionFailure()
             return
         }
-        guard let outputUnit = contextPointer.pointee.outputAudioUnit else {
-            assertionFailure()
-            return
-        }
-        stopAudioUnit(inputUnit)
-        stopAudioUnit(outputUnit)
+        stopAudioUnit(audioUnit)
         self.isRunning = false
     }
     
@@ -135,10 +129,14 @@ class DeviceManager {
         return audioComponentDescription
     }
     
-    class func makeAudioInputUnit(rawContext: UnsafeMutableRawPointer,
-                                  subType: UnitSubType,
-                            audioDeviceID: AudioObjectID,
-                            audioStreamBasicDescription: AudioStreamBasicDescription) throws -> AudioUnit
+    class func makeUniversalAudioUnit(
+                            rawContext: UnsafeMutableRawPointer,
+                            subType: UnitSubType,
+                            inputAudioDeviceID: AudioObjectID,
+                            inputAudioStreamBasicDescription: AudioStreamBasicDescription,
+                            outputAudioDeviceID: AudioObjectID,
+                            outputAudioStreamBasicDescription: AudioStreamBasicDescription
+    ) throws -> AudioUnit
     {
         var audioComponentDescription: AudioComponentDescription = makeAudioComponentDescriptionHALOutput(subType: subType)
 
@@ -170,33 +168,57 @@ class DeviceManager {
                                      kAudioOutputUnitProperty_EnableIO,
                                      kAudioUnitScope_Output,
                                      outputBus,
-                                     &disabled,
-                                     size(of: disabled))
+                                     &enabled,
+                                     size(of: enabled))
         guard error == noErr else {
             throw AudioUnitInputCreationError.halCantDisableOutputIO(error: error)
         }
 
-        var audioDeviceIDPassable: AudioObjectID = audioDeviceID
+        var inputAudioDeviceIDPassable: AudioObjectID = inputAudioDeviceID
         error = AudioUnitSetProperty(audioUnit,
                                      kAudioOutputUnitProperty_CurrentDevice,
                                      kAudioUnitScope_Global,
                                      inputBus,
-                                     &audioDeviceIDPassable,
-                                     size(of: audioDeviceID))
+                                     &inputAudioDeviceIDPassable,
+                                     size(of: inputAudioDeviceID))
         guard error == noErr else {
             throw AudioUnitInputCreationError.halCantSetInputDevice(error: error)
         }
+        
+        var outputAudioDeviceIDPassable: AudioObjectID = outputAudioDeviceID
+        error = AudioUnitSetProperty(audioUnit,
+                                     kAudioOutputUnitProperty_CurrentDevice,
+                                     kAudioUnitScope_Global,
+                                     outputBus,
+                                     &outputAudioDeviceIDPassable,
+                                     size(of: outputAudioDeviceID))
+        guard error == noErr else {
+            throw AudioUnitOutputCreationError.halCantSetOutputDevice(error: error)
+        }
 
-        var audioStreamBasicDescription = audioStreamBasicDescription
+        
+        var inputAudioStreamBasicDescription = inputAudioStreamBasicDescription
+        error = AudioUnitSetProperty(audioUnit,
+                                     kAudioUnitProperty_StreamFormat,
+                                     kAudioUnitScope_Output, // WRONG?
+                                     inputBus,
+                                     &inputAudioStreamBasicDescription,
+                                     size(of: inputAudioStreamBasicDescription))
+        guard error == noErr else {
+            throw AudioUnitInputCreationError.cantSetOutputFormat(error: error)
+        }
+        
+        var outputAudioStreamBasicDescription = outputAudioStreamBasicDescription
         error = AudioUnitSetProperty(audioUnit,
                                      kAudioUnitProperty_StreamFormat,
                                      kAudioUnitScope_Output,
                                      inputBus,
-                                     &audioStreamBasicDescription,
-                                     size(of: audioStreamBasicDescription))
+                                     &outputAudioStreamBasicDescription,
+                                     size(of: outputAudioStreamBasicDescription))
         guard error == noErr else {
-            throw AudioUnitInputCreationError.cantSetOutputFormat(error: error)
+            throw AudioUnitOutputCreationError.cantSetInputFormat(error: error)
         }
+        
 
         var renderCallbackStruct = AURenderCallbackStruct()
         renderCallbackStruct.inputProc = AudioUnitRecordingCallback
@@ -214,15 +236,33 @@ class DeviceManager {
         
         CircularBuffer.destroy(contextPointer.pointee.inputBuffer)
         contextPointer.pointee.inputBuffer = CircularBuffer.makeCircularBuffer(
-            sampleRate: audioStreamBasicDescription.mSampleRate
+            sampleRate: inputAudioStreamBasicDescription.mSampleRate
         )
         
-        contextPointer.pointee.bytesPerBlock = Int32(CircularBuffer.calculateSamplesPerBlock(sampleRate: audioStreamBasicDescription.mSampleRate))
+        contextPointer.pointee.bytesPerBlock = Int32(CircularBuffer.calculateSamplesPerBlock(sampleRate: inputAudioStreamBasicDescription.mSampleRate))
+        
+        // Set playback callback
 
+        var playbackCallbackStruct = AURenderCallbackStruct()
+        playbackCallbackStruct.inputProc = AudioUnitPlayoutCallback
+
+        // Using UnsafeMutableRawPointer with a global variable is safe. It must not be used in any other context but this one.
+        playbackCallbackStruct.inputProcRefCon = rawContext
+
+        error = AudioUnitSetProperty(audioUnit,
+                                     kAudioUnitProperty_SetRenderCallback,
+                                     kAudioUnitScope_Input,
+                                     outputBus,
+                                     &playbackCallbackStruct,
+                                     size(of: playbackCallbackStruct))
+        guard error == noErr else {
+            throw AudioUnitOutputCreationError.cantSetRenderCallback(error: error)
+        }
+        
         return audioUnit
     }
     
-    class func makeAudioOutputUnit(rawContext: UnsafeMutableRawPointer,
+    class func ___makeAudioOutputUnit(rawContext: UnsafeMutableRawPointer,
                                    subType: UnitSubType,
                                    audioDeviceID: AudioObjectID,
                                    audioStreamBasicDescription: AudioStreamBasicDescription) throws -> AudioUnit
