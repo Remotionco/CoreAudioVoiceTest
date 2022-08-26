@@ -32,6 +32,7 @@ struct ContentView: View {
                             return
                         }
                         selectedInputSampleRate = DeviceManager.getDevice(deviceID).sampleRate
+                        runSampleRateReconciliation()
                     }
                     Picker(selection: $selectedInputSampleRate) {
                         ForEach(inputDeviceNominalRates, id: \.self) {
@@ -54,6 +55,7 @@ struct ContentView: View {
                             return
                         }
                         selectedOutputSampleRate = DeviceManager.getDevice(deviceID).sampleRate
+                        runSampleRateReconciliation()
                     }
                     Picker(selection: $selectedOutputSampleRate) {
                         ForEach(outputDeviceNominalRates, id: \.self) {
@@ -96,6 +98,15 @@ struct ContentView: View {
         .onAppear {
             audioManager.getPermissions()
             audioManager.listDevices()
+        }
+    }
+    
+    func runSampleRateReconciliation() {
+        // If the selected input sample rate is available on the output side,
+        // we should probably actively select it
+        if let selectedOutputDeviceID,
+           DeviceManager.getDevice(selectedOutputDeviceID).nominalSampleRates.contains(selectedInputSampleRate) {
+            selectedOutputSampleRate = selectedInputSampleRate
         }
     }
 }
