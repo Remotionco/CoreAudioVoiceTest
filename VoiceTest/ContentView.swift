@@ -78,6 +78,7 @@ struct ContentView: View {
                 selectedInputDevice.sampleRate = selectedInputSampleRate
                 selectedOutputDevice.sampleRate = selectedOutputSampleRate
                 
+                print("Begin setup with selected devices: ")
                 print("Input device: ", selectedInputDevice)
                 print("Output device: ", selectedOutputDevice)
                 
@@ -110,18 +111,12 @@ extension ContentView {
     }
     
     private var inputDeviceNominalRates : [Float64] {
-        guard let selectedInputDeviceID else {
-            return []
-        }
-        let nominal = DeviceManager.getDevice(selectedInputDeviceID).nominalSampleRates
-        print("Inputs: ", nominal, selectedInputSampleRate)
-        return nominal
+        guard let selectedInputDeviceID else { return [] }
+        return DeviceManager.getDevice(selectedInputDeviceID).nominalSampleRates
     }
     
     private var outputDeviceNominalRates : [Float64] {
-        guard let selectedOutputDeviceID else {
-            return []
-        }
+        guard let selectedOutputDeviceID else { return [] }
         return DeviceManager.getDevice(selectedOutputDeviceID).nominalSampleRates
     }
 }
