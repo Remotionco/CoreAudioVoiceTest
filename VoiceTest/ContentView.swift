@@ -18,10 +18,6 @@ struct ContentView: View {
     @State private var inputSampleRate: Float64 = 44100.0
     @State private var outputSampleRate: Float64 = 44100.0
     
-    @State private var voiceProcessing = true
-    
-    private let sampleRateOptions: [Float64] = [16000.0,24000.0,32000.0,44100.0,48000]
-    
     var body: some View {
         VStack {
             HStack {
@@ -33,14 +29,6 @@ struct ContentView: View {
                             inputSampleRate = device.sampleRate
                         }
                     }
-                    Picker(selection: $inputSampleRate) {
-                        ForEach(sampleRateOptions, id: \.self) {
-                            Text("\(Int($0))").tag($0)
-                        }
-                    } label: {
-                        Text("")
-                    }
-                    .disabled(selectedInputDevice == nil)
                 }
                 
                 VStack {
@@ -51,19 +39,8 @@ struct ContentView: View {
                             outputSampleRate = device.sampleRate
                         }
                     }
-                    Picker(selection: $outputSampleRate) {
-                        ForEach(sampleRateOptions, id: \.self) {
-                            Text("\(Int($0))").tag($0)
-                        }
-                    } label: {
-                        Text("")
-                    }
-                    .disabled(selectedOutputDevice == nil)
                 }
             }
-            
-            Toggle("VPIO", isOn: $voiceProcessing)
-            
             Button("Setup") {
                 guard let selectedInputDevice = selectedInputDevice else {
                     print("Select a device!")
