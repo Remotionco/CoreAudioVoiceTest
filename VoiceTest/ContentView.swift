@@ -12,92 +12,79 @@ import AVFoundation
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     
-    @State private var selectedInputDevice: AudioObjectID?
-    @State private var selectedOutputDevice: AudioObjectID?
+    @State private var selectedInputDeviceID: AudioDevice.ID?
+    @State private var selectedOutputDeviceID: AudioDevice.ID?
     
-    @State private var inputSampleRate: Float64 = 24000
-    @State private var outputSampleRate: Float64 = 24000
-    
-    private var inputDevices: [AudioDevice] {
-        audioManager.listedDevices.filter { $0.deviceType.isMicrophone }
-    }
-    
-    private var outputDevices: [AudioDevice] {
-        audioManager.listedDevices.filter { $0.deviceType.isSpeaker }
-    }
-    
-    @State private var voiceProcessing = true
-    
-    private let sampleRateOptions: [Float64] = [16000.0,24000.0,32000.0,44100.0,48000]
+    @State private var selectedInputSampleRate: Float64 = 24000
+    @State private var selectedOutputSampleRate: Float64 = 24000
     
     var body: some View {
         VStack {
             HStack {
                 VStack {
                     Text("Input")
-                    List(inputDevices, id: \.id, selection: $selectedInputDevice) { device in
-                        Text(device.name).onTapGesture {
-                            selectedInputDevice = device.id
-                            inputSampleRate = device.sampleRate
-                        }
+                    List(inputDevices, id: \.id, selection: $selectedInputDeviceID) { device in
+                        Text(device.name).tag(device.id)
                     }
-                    Picker(selection: $inputSampleRate) {
-                        ForEach(sampleRateOptions, id: \.self) {
+                    .onChange(of: selectedInputDeviceID) { deviceID in
+                        guard let deviceID else {
+                            selectedInputSampleRate = -1
+                            return
+                        }
+                        selectedInputSampleRate = DeviceManager.getDevice(deviceID).sampleRate
+                    }
+                    Picker(selection: $selectedInputSampleRate) {
+                        ForEach(inputDeviceNominalRates, id: \.self) {
                             Text("\(Int($0))").tag($0)
                         }
                     } label: {
                         Text("")
                     }
-                    .disabled(selectedInputDevice == nil)
+                    .disabled(selectedInputDeviceID == nil)
                 }
                 
                 VStack {
                     Text("Output")
-                    List(outputDevices, id: \.id, selection: $selectedOutputDevice) { device in
-                        Text(device.name).onTapGesture {
-                            selectedOutputDevice = device.id
-                            outputSampleRate = device.sampleRate
-                        }
+                    List(outputDevices, id: \.id, selection: $selectedOutputDeviceID) { device in
+                        Text(device.name).tag(device.id)
                     }
-                    Picker(selection: $outputSampleRate) {
-                        ForEach(sampleRateOptions, id: \.self) {
+                    .onChange(of: selectedOutputDeviceID) { deviceID in
+                        guard let deviceID else {
+                            selectedOutputSampleRate = -1
+                            return
+                        }
+                        selectedOutputSampleRate = DeviceManager.getDevice(deviceID).sampleRate
+                    }
+                    Picker(selection: $selectedOutputSampleRate) {
+                        ForEach(outputDeviceNominalRates, id: \.self) {
                             Text("\(Int($0))").tag($0)
                         }
                     } label: {
                         Text("")
                     }
-                    .disabled(selectedOutputDevice == nil)
+                    .disabled(selectedOutputDeviceID == nil)
                 }
             }
-            
-            Toggle("VPIO", isOn: $voiceProcessing)
             
             Button("Setup") {
-                guard let selectedInputDevice = selectedInputDevice else {
-                    print("Select a device!")
-                    return
-                }
-                guard let selectedOutputDevice = selectedOutputDevice else {
+                guard let selectedInputDeviceID, let selectedOutputDeviceID else {
                     print("Select a device!")
                     return
                 }
                 
-                var inputDevice = DeviceManager.getDevice(selectedInputDevice)
-                var outputDevice = DeviceManager.getDevice(selectedOutputDevice)
-
-                print("Input device: ", inputDevice)
-                print("Output device: ", outputDevice)
+                var selectedInputDevice = DeviceManager.getDevice(selectedInputDeviceID)
+                var selectedOutputDevice = DeviceManager.getDevice(selectedOutputDeviceID)
                 
-                inputDevice.sampleRate = inputSampleRate
-                outputDevice.sampleRate = outputSampleRate
+                selectedInputDevice.sampleRate = selectedInputSampleRate
+                selectedOutputDevice.sampleRate = selectedOutputSampleRate
                 
-                print("Input sample rate: ", inputDevice.sampleRate)
-                print("Output sample rate: ", outputDevice.sampleRate)
+                print("Input device: ", selectedInputDevice)
+                print("Output device: ", selectedOutputDevice)
                 
-                audioManager.setupAudio(inputDevice: inputDevice,
-                                        outputDevice: outputDevice)
+                audioManager.setupAudio(inputDevice: selectedInputDevice,
+                                        outputDevice: selectedOutputDevice)
             }
-            .disabled(selectedInputDevice == nil || audioManager.isRunning)
+            .disabled(selectedInputDeviceID == nil || audioManager.isRunning)
             
             Button(audioManager.isRunning ? "Stop" : "Start") {
                 audioManager.toggleAudio()
@@ -109,6 +96,33 @@ struct ContentView: View {
             audioManager.getPermissions()
             audioManager.listDevices()
         }
+    }
+}
+
+// Device display functions
+extension ContentView {
+    private var inputDevices: [AudioDevice] {
+        audioManager.listedDevices.filter { $0.deviceType.isMicrophone }
+    }
+    
+    private var outputDevices: [AudioDevice] {
+        audioManager.listedDevices.filter { $0.deviceType.isSpeaker }
+    }
+    
+    private var inputDeviceNominalRates : [Float64] {
+        guard let selectedInputDeviceID else {
+            return []
+        }
+        let nominal = DeviceManager.getDevice(selectedInputDeviceID).nominalSampleRates
+        print("Inputs: ", nominal, selectedInputSampleRate)
+        return nominal
+    }
+    
+    private var outputDeviceNominalRates : [Float64] {
+        guard let selectedOutputDeviceID else {
+            return []
+        }
+        return DeviceManager.getDevice(selectedOutputDeviceID).nominalSampleRates
     }
 }
 

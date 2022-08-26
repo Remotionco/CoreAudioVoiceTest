@@ -16,15 +16,13 @@ extension DeviceManager {
     
     class func getDevice(_ id: AudioObjectID) -> AudioDevice {
         let actualSampleRate = getActualSampleRateForDevice(id)
-        let nominalSampleRate = getNominalSampleRateForDevice(id)
         let nominalSampleRates = getNominalSampleRates(id)
-        
-        print("Device \(id) sample rates:", actualSampleRate, nominalSampleRate, nominalSampleRates)
         
         return AudioDevice(id: id,
                     name: getDeviceName(id) ?? "Unknown - \(id)",
                     deviceType: getDeviceType(objectID: id),
-                    sampleRate: actualSampleRate
+                    sampleRate: actualSampleRate,
+                    nominalSampleRates: nominalSampleRates
         )
     }
     
@@ -73,7 +71,7 @@ extension DeviceManager {
     }
     
     class func getNominalSampleRates(_ objectID: AudioObjectID) -> [Float64] {
-        var kNominalSampleRatesAddress: AudioObjectPropertyAddress =
+        let kNominalSampleRatesAddress: AudioObjectPropertyAddress =
             AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyAvailableNominalSampleRates,
                                        mScope: kAudioObjectPropertyScopeGlobal,
                                        mElement: kAudioObjectPropertyElementMain)

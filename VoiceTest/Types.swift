@@ -55,6 +55,7 @@ struct AudioDevice: Identifiable {
     var name: String
     var deviceType: DeviceType
     var sampleRate: Float64
+    var nominalSampleRates: [Float64]
 }
 
 extension AudioDevice: Hashable, Equatable {
