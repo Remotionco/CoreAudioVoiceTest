@@ -224,7 +224,7 @@ class DeviceManager {
             sampleRate: inputSampleRate
         )
         
-        contextPointer.pointee.bytesPerBlock = Int32(CircularBuffer.calculateSamplesPerBlock(sampleRate: outputDesc.mSampleRate))
+        contextPointer.pointee.bytesPerBlock = Int32(CircularBuffer.calculateSamplesPerBlock(sampleRate: outputSampleRate))
         
         // Set playback callback
         var playbackCallbackStruct = AURenderCallbackStruct()
