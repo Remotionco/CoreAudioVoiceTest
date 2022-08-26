@@ -80,11 +80,9 @@
 			isa = PBXGroup;
 			children = (
 				D23DA67028537EEB0061CAE0 /* Info.plist */,
-				D23DA66128537EB60061CAE0 /* VoiceTestApp.swift */,
-				D23DA66328537EB60061CAE0 /* ContentView.swift */,
 				D23DA678285384720061CAE0 /* Audio.swift */,
-				D23DA67A285391380061CAE0 /* Devices.swift */,
-				D23DA6852853D2390061CAE0 /* Formats.swift */,
+				D277B8A828B9602A007A73CB /* UI */,
+				D277B8A928B96045007A73CB /* Device and Format Helpers */,
 				D23DA6872853E5AF0061CAE0 /* Types.swift */,
 				D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */,
 				D23DA676285382A00061CAE0 /* AudioCallbacks.hpp */,
@@ -117,6 +115,24 @@
 				D2FD39C828B3FD4B00C8C428 /* TPCircularBuffer+AudioBufferList.c */,
 			);
 			path = CircularBuffer;
+			sourceTree = "<group>";
+		};
+		D277B8A828B9602A007A73CB /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				D23DA66128537EB60061CAE0 /* VoiceTestApp.swift */,
+				D23DA66328537EB60061CAE0 /* ContentView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		D277B8A928B96045007A73CB /* Device and Format Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				D23DA67A285391380061CAE0 /* Devices.swift */,
+				D23DA6852853D2390061CAE0 /* Formats.swift */,
+			);
+			path = "Device and Format Helpers";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
