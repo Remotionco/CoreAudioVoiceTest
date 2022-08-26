@@ -229,8 +229,9 @@ class DeviceManager {
         
         // Setup the buffers
         try setAudioUnitBufferSize(audioUnit: audioUnit,
-                                                 bufferSize: CircularBuffer
-            .calculateSamplesPerBlock(sampleRate: inputDesc.mSampleRate))
+                                   bufferSize: CircularBuffer
+                                        .calculateSamplesPerBlock(sampleRate: inputDesc.mSampleRate)
+                                    )
         
         return audioUnit
     }
