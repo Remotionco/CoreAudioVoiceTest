@@ -115,6 +115,14 @@ class DeviceManager {
         
         var optionalAudioUnit: AudioUnit?
         var error = AudioComponentInstanceNew(audioComponent, &optionalAudioUnit)
+        
+        /*
+         Note that by this point, even with devices that work (like the Macbook internal mic and speakers, we already
+         see this in the console:
+         
+         Failed to set output device tap stream physical format =  2 ch,  48000 Hz, Float32, interleaved, err=1852797029
+         */
+        
         guard error == noErr else {
             throw AudioUnitInputCreationError.cantInstantiateOutputComponent(error: error)
         }
@@ -123,6 +131,7 @@ class DeviceManager {
             throw AudioUnitInputCreationError.audioUnitNil
         }
         
+        // Enable IO on the input
         error = AudioUnitSetProperty(audioUnit,
                                      kAudioOutputUnitProperty_EnableIO,
                                      kAudioUnitScope_Input,
@@ -133,6 +142,7 @@ class DeviceManager {
             throw AudioUnitInputCreationError.cantEnableInputIO(error: error)
         }
         
+        // Enable IO on the output
         error = AudioUnitSetProperty(audioUnit,
                                      kAudioOutputUnitProperty_EnableIO,
                                      kAudioUnitScope_Output,
@@ -143,6 +153,7 @@ class DeviceManager {
             throw AudioUnitInputCreationError.cantDisableOutputIO(error: error)
         }
         
+        // Set the current device of the audio unit to the selected input device ID
         var inputAudioDeviceIDPassable: AudioObjectID = inputAudioDeviceID
         error = AudioUnitSetProperty(audioUnit,
                                      kAudioOutputUnitProperty_CurrentDevice,
@@ -154,6 +165,7 @@ class DeviceManager {
             throw AudioUnitInputCreationError.cantSetInputDevice(error: error)
         }
         
+        // Set the current device of the audio unit to the selected output device ID
         var outputAudioDeviceIDPassable: AudioObjectID = outputAudioDeviceID
         error = AudioUnitSetProperty(audioUnit,
                                      kAudioOutputUnitProperty_CurrentDevice,
@@ -165,30 +177,32 @@ class DeviceManager {
             throw AudioUnitOutputCreationError.cantSetOutputDevice(error: error)
         }
         
-        var inputDesc: AudioStreamBasicDescription =
-            FormatManager.makeAudioStreamBasicDescription(sampleRate: inputSampleRate)
-        error = AudioUnitSetProperty(audioUnit,
-                                     kAudioUnitProperty_StreamFormat,
-                                     kAudioUnitScope_Output,
-                                     inputBus,
-                                     &inputDesc,
-                                     size(of: inputDesc))
-        guard error == noErr else {
-            throw AudioUnitInputCreationError.cantSetOutputFormat(error: error)
-        }
-        
-        
-        var outputDesc: AudioStreamBasicDescription =
-            FormatManager.makeAudioStreamBasicDescription(sampleRate: outputSampleRate)
-        error = AudioUnitSetProperty(audioUnit,
-                                     kAudioUnitProperty_StreamFormat,
-                                     kAudioUnitScope_Output,
-                                     inputBus,
-                                     &outputDesc,
-                                     size(of: outputDesc))
-        guard error == noErr else {
-            throw AudioUnitOutputCreationError.cantSetInputFormat(error: error)
-        }
+        // Set the stream format
+        // Warning: this causes AirPods to not work...
+//        var inputDesc: AudioStreamBasicDescription =
+//            FormatManager.makeAudioStreamBasicDescription(sampleRate: inputSampleRate)
+//        error = AudioUnitSetProperty(audioUnit,
+//                                     kAudioUnitProperty_StreamFormat,
+//                                     kAudioUnitScope_Output,
+//                                     inputBus,
+//                                     &inputDesc,
+//                                     size(of: inputDesc))
+//        guard error == noErr else {
+//            throw AudioUnitInputCreationError.cantSetOutputFormat(error: error)
+//        }
+//
+//
+//        var outputDesc: AudioStreamBasicDescription =
+//            FormatManager.makeAudioStreamBasicDescription(sampleRate: outputSampleRate)
+//        error = AudioUnitSetProperty(audioUnit,
+//                                     kAudioUnitProperty_StreamFormat,
+//                                     kAudioUnitScope_Output,
+//                                     inputBus,
+//                                     &outputDesc,
+//                                     size(of: outputDesc))
+//        guard error == noErr else {
+//            throw AudioUnitOutputCreationError.cantSetInputFormat(error: error)
+//        }
         
         // Set the input callback
         var renderCallbackStruct = AURenderCallbackStruct()
@@ -207,7 +221,7 @@ class DeviceManager {
         
         CircularBuffer.destroy(contextPointer.pointee.inputBuffer)
         contextPointer.pointee.inputBuffer = CircularBuffer.makeCircularBuffer(
-            sampleRate: inputDesc.mSampleRate
+            sampleRate: inputSampleRate
         )
         
         contextPointer.pointee.bytesPerBlock = Int32(CircularBuffer.calculateSamplesPerBlock(sampleRate: outputDesc.mSampleRate))
@@ -230,7 +244,7 @@ class DeviceManager {
         // Setup the buffers
         try setAudioUnitBufferSize(audioUnit: audioUnit,
                                    bufferSize: CircularBuffer
-                                        .calculateSamplesPerBlock(sampleRate: inputDesc.mSampleRate)
+                                        .calculateSamplesPerBlock(sampleRate: inputSampleRate)
                                     )
         
         return audioUnit
