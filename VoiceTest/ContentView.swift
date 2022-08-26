@@ -15,15 +15,23 @@ struct ContentView: View {
     @State private var selectedInputDevice: AudioObjectID?
     @State private var selectedOutputDevice: AudioObjectID?
     
-    @State private var inputSampleRate: Float64 = 44100.0
-    @State private var outputSampleRate: Float64 = 44100.0
+    @State private var inputSampleRate: Float64 = 24000
+    @State private var outputSampleRate: Float64 = 24000
+    
+    private var inputDevices: [AudioDevice] {
+        audioManager.listedDevices.filter { $0.deviceType.isMicrophone }
+    }
+    
+    private var outputDevices: [AudioDevice] {
+        audioManager.listedDevices.filter { $0.deviceType.isSpeaker }
+    }
     
     var body: some View {
         VStack {
             HStack {
                 VStack {
                     Text("Input")
-                    List(audioManager.listedDevices.filter { $0.deviceType.isMicrophone }, id: \.id, selection: $selectedInputDevice) { device in
+                    List(inputDevices, id: \.id, selection: $selectedInputDevice) { device in
                         Text(device.name).onTapGesture {
                             selectedInputDevice = device.id
                             inputSampleRate = device.sampleRate
@@ -33,7 +41,7 @@ struct ContentView: View {
                 
                 VStack {
                     Text("Output")
-                    List(audioManager.listedDevices.filter { $0.deviceType.isSpeaker }, id: \.id, selection: $selectedOutputDevice) { device in
+                    List(outputDevices, id: \.id, selection: $selectedOutputDevice) { device in
                         Text(device.name).onTapGesture {
                             selectedOutputDevice = device.id
                             outputSampleRate = device.sampleRate
@@ -54,8 +62,14 @@ struct ContentView: View {
                 var inputDevice = DeviceManager.getDevice(selectedInputDevice)
                 var outputDevice = DeviceManager.getDevice(selectedOutputDevice)
 
+                print("Input device: ", inputDevice)
+                print("Output device: ", outputDevice)
+                
                 inputDevice.sampleRate = inputSampleRate
                 outputDevice.sampleRate = outputSampleRate
+                
+                print("Input sample rate: ", inputDevice.sampleRate)
+                print("Output sample rate: ", outputDevice.sampleRate)
                 
                 audioManager.setupAudio(inputDevice: inputDevice,
                                         outputDevice: outputDevice)

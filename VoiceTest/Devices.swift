@@ -15,10 +15,16 @@ extension DeviceManager {
     }
     
     class func getDevice(_ id: AudioObjectID) -> AudioDevice {
-        AudioDevice(id: id,
+        let actualSampleRate = getActualSampleRateForDevice(id)
+        let nominalSampleRate = getNominalSampleRateForDevice(id)
+        let nominalSampleRates = getNominalSampleRates(id)
+        
+        print("Device \(id) sample rates:", actualSampleRate, nominalSampleRate, nominalSampleRates)
+        
+        return AudioDevice(id: id,
                     name: getDeviceName(id) ?? "Unknown - \(id)",
                     deviceType: getDeviceType(objectID: id),
-                    sampleRate: getActualSampleRateForDevice(id)
+                    sampleRate: actualSampleRate
         )
     }
     
@@ -64,6 +70,25 @@ extension DeviceManager {
             assertionFailure("Error: \(status)")
         }
         return value
+    }
+    
+    class func getNominalSampleRates(_ objectID: AudioObjectID) -> [Float64] {
+        var kNominalSampleRatesAddress: AudioObjectPropertyAddress =
+            AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyAvailableNominalSampleRates,
+                                       mScope: kAudioObjectPropertyScopeGlobal,
+                                       mElement: kAudioObjectPropertyElementMain)
+        
+        var valueRanges = [AudioValueRange]()
+        let status: OSStatus = getPropertyDataArray(objectID,
+                                                    address: kNominalSampleRatesAddress,
+                                                    value: &valueRanges,
+                                                    andDefaultValue: AudioValueRange())
+        
+        if status != noErr {
+            assertionFailure("Error: \(status)")
+        }
+        
+        return valueRanges.map { $0.mMinimum }
     }
     
     class func getPropertyDataSize<Q>(_ objectID: AudioObjectID,

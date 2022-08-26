@@ -26,6 +26,9 @@ class AudioManager: ObservableObject {
             let outputDesc: AudioStreamBasicDescription =
                 FormatManager.makeAudioStreamBasicDescription(sampleRate: outputDevice.sampleRate)
             
+            print("Input desc: ", inputDesc)
+            print("Output desc: ", outputDesc)
+            
             let audioUnit = try DeviceManager.makeUniversalAudioUnit(
                 rawContext: contextPointer,
                 inputAudioDeviceID: inputDevice.id,
@@ -181,7 +184,7 @@ class DeviceManager {
         var inputAudioStreamBasicDescription = inputAudioStreamBasicDescription
         error = AudioUnitSetProperty(audioUnit,
                                      kAudioUnitProperty_StreamFormat,
-                                     kAudioUnitScope_Output, // WRONG?
+                                     kAudioUnitScope_Output,
                                      inputBus,
                                      &inputAudioStreamBasicDescription,
                                      size(of: inputAudioStreamBasicDescription))
