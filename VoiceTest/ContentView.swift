@@ -81,8 +81,7 @@ struct ContentView: View {
                 outputDevice.sampleRate = outputSampleRate
                 
                 audioManager.setupAudio(inputDevice: inputDevice,
-                                        outputDevice: outputDevice,
-                                        subType: voiceProcessing ? .VPIO : .HAL)
+                                        outputDevice: outputDevice)
             }
             .disabled(selectedInputDevice == nil || audioManager.isRunning)
             

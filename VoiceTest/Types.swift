@@ -8,20 +8,6 @@
 import Foundation
 import AudioToolbox
 
-enum UnitSubType{
-    case HAL
-    case VPIO
-    
-    var subTypeValue : UInt32 {
-        switch self {
-        case .HAL:
-            return kAudioUnitSubType_HALOutput
-        case .VPIO:
-            return kAudioUnitSubType_VoiceProcessingIO
-        }
-    }
-}
-
 enum CustomAudioPipelineError: Error {
     case couldNotInitialize(error: OSStatus)
     case couldNotStart(error: OSStatus)
