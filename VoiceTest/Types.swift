@@ -15,12 +15,12 @@ enum CustomAudioPipelineError: Error {
 }
 
 enum AudioUnitOutputCreationError: Error {
-    case cantFindAudioHALOutputComponent
-    case cantInstantiateHALOutputComponent(error: OSStatus)
+    case cantFindAudioOutputComponent
+    case cantInstantiateOutputComponent(error: OSStatus)
     case audioUnitNil
-    case halCantDisableInputIO(error: OSStatus)
-    case halCantEnableOutputIO(error: OSStatus)
-    case halCantSetOutputDevice(error: OSStatus)
+    case cantDisableInputIO(error: OSStatus)
+    case cantEnableOutputIO(error: OSStatus)
+    case cantSetOutputDevice(error: OSStatus)
     case cantSetInputFormat(error: OSStatus)
     case cantSetRenderCallback(error: OSStatus)
     case couldNotSetOutputSampleRate(error: OSStatus)
@@ -28,12 +28,12 @@ enum AudioUnitOutputCreationError: Error {
 }
 
 enum AudioUnitInputCreationError: Error {
-    case cantFindAudioHALOutputComponent
-    case cantInstantiateHALOutputComponent(error: OSStatus)
+    case cantFindAudioOutputComponent
+    case cantInstantiateOutputComponent(error: OSStatus)
     case audioUnitNil
-    case halCantEnableInputIO(error: OSStatus)
-    case halCantDisableOutputIO(error: OSStatus)
-    case halCantSetInputDevice(error: OSStatus)
+    case cantEnableInputIO(error: OSStatus)
+    case cantDisableOutputIO(error: OSStatus)
+    case cantSetInputDevice(error: OSStatus)
     case cantSetOutputFormat(error: OSStatus)
     case cantSetInputCallback(error: OSStatus)
     case couldNotSetInputSampleRate(error: OSStatus)

@@ -37,14 +37,13 @@ class AudioManager: ObservableObject {
                 outputAudioStreamBasicDescription: outputDesc)
             
             // Setup the buffers
-            // TODO: UNIVERSAL BUFFERSIZE FUNCTION
             try DeviceManager.setAudioUnitBufferSize(audioUnit: audioUnit,
                                                      bufferSize: CircularBuffer
                 .calculateSamplesPerBlock(sampleRate: inputDesc.mSampleRate))
             
             contextPointer.pointee.audioUnit = audioUnit
         } catch {
-            assertionFailure("Input error: \(error)")
+            assertionFailure("Setup error: \(error)")
         }
         
         isSetup = true
@@ -125,13 +124,13 @@ class DeviceManager {
         var audioComponentDescription: AudioComponentDescription = makeAudioComponentDescription()
 
         guard let audioComponent = AudioComponentFindNext(nil, &audioComponentDescription) else {
-            throw AudioUnitInputCreationError.cantFindAudioHALOutputComponent
+            throw AudioUnitInputCreationError.cantFindAudioOutputComponent
         }
 
         var optionalAudioUnit: AudioUnit?
         var error = AudioComponentInstanceNew(audioComponent, &optionalAudioUnit)
         guard error == noErr else {
-            throw AudioUnitInputCreationError.cantInstantiateHALOutputComponent(error: error)
+            throw AudioUnitInputCreationError.cantInstantiateOutputComponent(error: error)
         }
 
         guard let audioUnit: AudioUnit = optionalAudioUnit else {
@@ -145,7 +144,7 @@ class DeviceManager {
                                      &enabled,
                                      size(of: enabled))
         guard error == noErr else {
-            throw AudioUnitInputCreationError.halCantEnableInputIO(error: error)
+            throw AudioUnitInputCreationError.cantEnableInputIO(error: error)
         }
 
         error = AudioUnitSetProperty(audioUnit,
@@ -155,7 +154,7 @@ class DeviceManager {
                                      &enabled,
                                      size(of: enabled))
         guard error == noErr else {
-            throw AudioUnitInputCreationError.halCantDisableOutputIO(error: error)
+            throw AudioUnitInputCreationError.cantDisableOutputIO(error: error)
         }
 
         var inputAudioDeviceIDPassable: AudioObjectID = inputAudioDeviceID
@@ -166,7 +165,7 @@ class DeviceManager {
                                      &inputAudioDeviceIDPassable,
                                      size(of: inputAudioDeviceID))
         guard error == noErr else {
-            throw AudioUnitInputCreationError.halCantSetInputDevice(error: error)
+            throw AudioUnitInputCreationError.cantSetInputDevice(error: error)
         }
         
         var outputAudioDeviceIDPassable: AudioObjectID = outputAudioDeviceID
@@ -177,7 +176,7 @@ class DeviceManager {
                                      &outputAudioDeviceIDPassable,
                                      size(of: outputAudioDeviceID))
         guard error == noErr else {
-            throw AudioUnitOutputCreationError.halCantSetOutputDevice(error: error)
+            throw AudioUnitOutputCreationError.cantSetOutputDevice(error: error)
         }
 
         
