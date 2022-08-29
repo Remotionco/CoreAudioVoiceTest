@@ -18,12 +18,12 @@
 		D23DA68428539DDB0061CAE0 /* CircularBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA68328539DDB0061CAE0 /* CircularBuffer.swift */; };
 		D23DA6862853D2390061CAE0 /* Formats.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA6852853D2390061CAE0 /* Formats.swift */; };
 		D23DA6882853E5AF0061CAE0 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23DA6872853E5AF0061CAE0 /* Types.swift */; };
-		D23DA68A285400130061CAE0 /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = D23DA689285400130061CAE0 /* Readme.md */; };
 		D2FD39CA28B3FD4B00C8C428 /* TPCircularBuffer+AudioBufferList.c in Sources */ = {isa = PBXBuildFile; fileRef = D2FD39C828B3FD4B00C8C428 /* TPCircularBuffer+AudioBufferList.c */; };
 		D2FD39CB28B3FD4B00C8C428 /* TPCircularBuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D2FD39C928B3FD4B00C8C428 /* TPCircularBuffer.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D22D0CF228BD092F00271F68 /* Question.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Question.md; sourceTree = "<group>"; };
 		D23DA65E28537EB60061CAE0 /* VoiceTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D23DA66128537EB60061CAE0 /* VoiceTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceTestApp.swift; sourceTree = "<group>"; };
 		D23DA66328537EB60061CAE0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -63,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				D23DA689285400130061CAE0 /* Readme.md */,
+				D22D0CF228BD092F00271F68 /* Question.md */,
 				D23DA66028537EB60061CAE0 /* VoiceTest */,
 				D23DA65F28537EB60061CAE0 /* Products */,
 			);
@@ -216,7 +217,6 @@
 			files = (
 				D23DA66928537EB70061CAE0 /* Preview Assets.xcassets in Resources */,
 				D23DA66628537EB70061CAE0 /* Assets.xcassets in Resources */,
-				D23DA68A285400130061CAE0 /* Readme.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
