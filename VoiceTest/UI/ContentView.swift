@@ -87,7 +87,7 @@ struct ContentView: View {
                 audioManager.setupAudio(inputDevice: selectedInputDevice,
                                         outputDevice: selectedOutputDevice)
             }
-            .disabled(selectedInputDeviceID == nil || audioManager.isRunning)
+            .disabled(selectedInputDeviceID == nil || selectedOutputDeviceID == nil || audioManager.isRunning)
             
             Button(audioManager.isRunning ? "Stop" : "Start") {
                 audioManager.toggleAudio()
