@@ -36,7 +36,7 @@ struct ContentView: View {
                     }
                     Picker(selection: $selectedInputSampleRate) {
                         ForEach(inputDeviceNominalRates, id: \.self) {
-                            Text("\(Int($0))").tag($0)
+                            Text(String(Int($0))).tag($0)
                         }
                     } label: {
                         Text("")
@@ -59,7 +59,7 @@ struct ContentView: View {
                     }
                     Picker(selection: $selectedOutputSampleRate) {
                         ForEach(outputDeviceNominalRates, id: \.self) {
-                            Text("\(Int($0))").tag($0)
+                            Text(String(Int($0))).tag($0)
                         }
                     } label: {
                         Text("")
