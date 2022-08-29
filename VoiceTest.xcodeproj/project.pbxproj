@@ -30,7 +30,7 @@
 		D23DA66528537EB70061CAE0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D23DA66828537EB70061CAE0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D23DA66A28537EB70061CAE0 /* VoiceTest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VoiceTest.entitlements; sourceTree = "<group>"; };
-		D23DA67028537EEB0061CAE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D23DA67028537EEB0061CAE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D23DA671285381ED0061CAE0 /* VoiceTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VoiceTest-Bridging-Header.h"; sourceTree = "<group>"; };
 		D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AudioCallbacks.cpp; sourceTree = "<group>"; };
 		D23DA676285382A00061CAE0 /* AudioCallbacks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AudioCallbacks.hpp; sourceTree = "<group>"; };
@@ -79,18 +79,14 @@
 		D23DA66028537EB60061CAE0 /* VoiceTest */ = {
 			isa = PBXGroup;
 			children = (
-				D23DA67028537EEB0061CAE0 /* Info.plist */,
 				D23DA678285384720061CAE0 /* Audio.swift */,
+				D23DA6872853E5AF0061CAE0 /* Types.swift */,
 				D277B8A828B9602A007A73CB /* UI */,
 				D277B8A928B96045007A73CB /* Device and Format Helpers */,
-				D23DA6872853E5AF0061CAE0 /* Types.swift */,
-				D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */,
-				D23DA676285382A00061CAE0 /* AudioCallbacks.hpp */,
+				D28F28C728BC71C10021CB68 /* Audio Callbacks */,
 				D23DA68228539DA70061CAE0 /* CircularBuffer */,
-				D23DA66528537EB70061CAE0 /* Assets.xcassets */,
-				D23DA66A28537EB70061CAE0 /* VoiceTest.entitlements */,
+				D28F28C628BC71B60021CB68 /* Meta */,
 				D23DA66728537EB70061CAE0 /* Preview Content */,
-				D23DA671285381ED0061CAE0 /* VoiceTest-Bridging-Header.h */,
 			);
 			path = VoiceTest;
 			sourceTree = "<group>";
@@ -133,6 +129,26 @@
 				D23DA6852853D2390061CAE0 /* Formats.swift */,
 			);
 			path = "Device and Format Helpers";
+			sourceTree = "<group>";
+		};
+		D28F28C628BC71B60021CB68 /* Meta */ = {
+			isa = PBXGroup;
+			children = (
+				D23DA67028537EEB0061CAE0 /* Info.plist */,
+				D23DA66528537EB70061CAE0 /* Assets.xcassets */,
+				D23DA66A28537EB70061CAE0 /* VoiceTest.entitlements */,
+				D23DA671285381ED0061CAE0 /* VoiceTest-Bridging-Header.h */,
+			);
+			path = Meta;
+			sourceTree = "<group>";
+		};
+		D28F28C728BC71C10021CB68 /* Audio Callbacks */ = {
+			isa = PBXGroup;
+			children = (
+				D23DA675285382A00061CAE0 /* AudioCallbacks.cpp */,
+				D23DA676285382A00061CAE0 /* AudioCallbacks.hpp */,
+			);
+			path = "Audio Callbacks";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -347,7 +363,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = VoiceTest/VoiceTest.entitlements;
+				CODE_SIGN_ENTITLEMENTS = VoiceTest/Meta/VoiceTest.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -356,7 +372,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = VoiceTest/Info.plist;
+				INFOPLIST_FILE = VoiceTest/Meta/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = Microphone;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -367,7 +383,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.johnnastos.VoiceTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "VoiceTest/VoiceTest-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "VoiceTest/Meta/VoiceTest-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -379,7 +395,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = VoiceTest/VoiceTest.entitlements;
+				CODE_SIGN_ENTITLEMENTS = VoiceTest/Meta/VoiceTest.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -388,7 +404,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = VoiceTest/Info.plist;
+				INFOPLIST_FILE = VoiceTest/Meta/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = Microphone;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -399,7 +415,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.johnnastos.VoiceTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "VoiceTest/VoiceTest-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "VoiceTest/Meta/VoiceTest-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
