@@ -177,33 +177,6 @@ class DeviceManager {
             throw AudioUnitOutputCreationError.cantSetOutputDevice(error: error)
         }
         
-        // Set the stream format
-        // Warning: this causes AirPods to not work...
-//        var inputDesc: AudioStreamBasicDescription =
-//            FormatManager.makeAudioStreamBasicDescription(sampleRate: inputSampleRate)
-//        error = AudioUnitSetProperty(audioUnit,
-//                                     kAudioUnitProperty_StreamFormat,
-//                                     kAudioUnitScope_Output,
-//                                     inputBus,
-//                                     &inputDesc,
-//                                     size(of: inputDesc))
-//        guard error == noErr else {
-//            throw AudioUnitInputCreationError.cantSetOutputFormat(error: error)
-//        }
-//
-//
-//        var outputDesc: AudioStreamBasicDescription =
-//            FormatManager.makeAudioStreamBasicDescription(sampleRate: outputSampleRate)
-//        error = AudioUnitSetProperty(audioUnit,
-//                                     kAudioUnitProperty_StreamFormat,
-//                                     kAudioUnitScope_Output,
-//                                     inputBus,
-//                                     &outputDesc,
-//                                     size(of: outputDesc))
-//        guard error == noErr else {
-//            throw AudioUnitOutputCreationError.cantSetInputFormat(error: error)
-//        }
-        
         // Set the input callback
         var renderCallbackStruct = AURenderCallbackStruct()
         renderCallbackStruct.inputProc = AudioUnitRecordingCallback
@@ -219,13 +192,6 @@ class DeviceManager {
             throw AudioUnitInputCreationError.cantSetInputCallback(error: error)
         }
         
-        CircularBuffer.destroy(contextPointer.pointee.inputBuffer)
-        contextPointer.pointee.inputBuffer = CircularBuffer.makeCircularBuffer(
-            sampleRate: inputSampleRate
-        )
-        
-        contextPointer.pointee.bytesPerBlock = Int32(CircularBuffer.calculateSamplesPerBlock(sampleRate: outputSampleRate))
-        
         // Set playback callback
         var playbackCallbackStruct = AURenderCallbackStruct()
         playbackCallbackStruct.inputProc = AudioUnitPlayoutCallback
@@ -240,8 +206,16 @@ class DeviceManager {
         guard error == noErr else {
             throw AudioUnitOutputCreationError.cantSetRenderCallback(error: error)
         }
+                
+        // Create the circular buffer used to send data from the
+        // input to the output side
+        CircularBuffer.destroy(contextPointer.pointee.inputBuffer)
+        contextPointer.pointee.inputBuffer = CircularBuffer.makeCircularBuffer(
+            sampleRate: inputSampleRate
+        )
         
-        // Setup the buffers
+        contextPointer.pointee.bytesPerBlock = Int32(CircularBuffer.calculateSamplesPerBlock(sampleRate: outputSampleRate))
+        
         try setAudioUnitBufferSize(audioUnit: audioUnit,
                                    bufferSize: CircularBuffer
                                         .calculateSamplesPerBlock(sampleRate: inputSampleRate)
