@@ -50,12 +50,12 @@ OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,
     float* buffer = reinterpret_cast<float*>(inputAudioBufferList.mBuffers[0].mData);
     UInt32 bufferSize = inputAudioBufferList.mBuffers[0].mDataByteSize;
     
-    float magnitude = computeEnergy(buffer, bufferSize);
+    float magnitude = computeEnergy(buffer, inNumberFrames);
     
-    printf("Callback at %f  ", inTimeStamp->mSampleTime);
-    printf("Magnitude: %f  ", magnitude);
-    printf("Frames: %i  ", inNumberFrames);
-    printf("\n");
+//    printf("Callback at %f  ", inTimeStamp->mSampleTime);
+//    printf("Magnitude: %f  ", magnitude);
+//    printf("Frames: %i  %u", inNumberFrames, bufferSize);
+//    printf("\n");
     
     TPCircularBuffer* inputCircularBuffer = reinterpret_cast<TPCircularBuffer*>(context->inputBuffer);
     
@@ -69,6 +69,8 @@ OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,
         memcpy(inputCircularBufferHead, buffer, bufferSize);
         TPCircularBufferProduce(inputCircularBuffer, bufferSize);
     }
+    
+    context->callbacks.audioData(buffer, inNumberFrames, inTimeStamp, context->callbacks.observer);
     
     return noErr;
 }
@@ -98,10 +100,10 @@ OSStatus AudioUnitPlayoutCallback(void* _Nonnull inRefCon,
     
     float* outBuffer = reinterpret_cast<float*>(ioData->mBuffers[0].mData);
     
-    printf("Playback ");
-    printf("Magnitude: %f", computeEnergy(outBuffer, inNumberFrames));
-    //printf("Frames: %i  ", inNumberFrames);
-    printf("\n");
-    
+//    printf("Playback ");
+//    printf("Magnitude: %f", computeEnergy(outBuffer, inNumberFrames));
+//    //printf("Frames: %i  ", inNumberFrames);
+//    printf("\n");
+//    
     return noErr;
 }

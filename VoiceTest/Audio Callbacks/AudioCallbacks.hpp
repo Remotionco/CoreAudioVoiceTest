@@ -15,10 +15,17 @@
 extern "C" {
 #endif
 
+struct AudioCallbacks {
+    void (* _Nonnull audioData)(const void * _Nonnull modifier, UInt32 inNumberFrames, const AudioTimeStamp* _Nonnull inTimeStamp, void* _Nonnull observer);
+    void * _Nonnull observer;
+};
+typedef struct AudioCallbacks AudioCallbacks;
+
 typedef struct CustomAudioContext {
     AudioUnit _Nullable audioUnit;
     void* _Nullable inputBuffer;
     int bytesPerBlock;
+    AudioCallbacks callbacks;
 } CustomAudioContext;
 
 OSStatus AudioUnitRecordingCallback(void* _Nonnull inRefCon,

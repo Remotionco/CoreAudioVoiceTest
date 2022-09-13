@@ -8,6 +8,7 @@
 import Foundation
 import AudioToolbox
 import AVFoundation
+import SoundAnalysis
 
 private var context = CustomAudioContext()
 private let contextPointer = UnsafeMutablePointer(&context)
@@ -16,6 +17,27 @@ class AudioManager: ObservableObject {
     @Published var isSetup = false
     @Published var isRunning = false
     @Published var listedDevices: [AudioDevice] = []
+    
+    private var streamAnalyzer: SNAudioStreamAnalyzer!
+    private let analysisQueue = DispatchQueue(label: "com.example.AnalysisQueue")
+    private let resultsObserver = SoundResultsObserver()
+
+    private var buffer: AVAudioPCMBuffer!
+    let engine = AVAudioEngine()
+
+    
+    func analyze(data: [Float32], timeStamp: UnsafePointer<AudioTimeStamp>) {
+        
+        let magnitude = data.reduce(0) { partialResult, item in
+            return partialResult + abs(item)
+        }
+        //print("Got data in: ", data.count, magnitude, timeStamp.pointee.mSampleTime)
+        var data = data
+        memcpy(buffer.floatChannelData![0], &data, 441 * 4) // 4 = sizeof(Float32)
+        analysisQueue.async {
+            self.streamAnalyzer.analyze(self.buffer, atAudioFramePosition: AVAudioFramePosition(timeStamp.pointee.mSampleTime))
+        }
+    }
     
     func setupAudio(inputDevice: AudioDevice, outputDevice: AudioDevice) {
         // Setup the audio units
@@ -28,6 +50,48 @@ class AudioManager: ObservableObject {
                 outputSampleRate: outputDevice.sampleRate)
             
             contextPointer.pointee.audioUnit = audioUnit
+                        
+            var desc = FormatManager.makeAudioStreamBasicDescription(sampleRate: inputDevice.sampleRate)
+            
+            print(desc)
+            
+            let format = AVAudioFormat(streamDescription: &desc)!
+            
+            print("Input format: ", format)
+            
+            streamAnalyzer = SNAudioStreamAnalyzer(format: format)
+            let request = try SNClassifySoundRequest(classifierIdentifier: SNClassifierIdentifier.version1)
+            
+            print(request.knownClassifications)
+            
+            try streamAnalyzer.add(request, withObserver: resultsObserver)
+            buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 441)
+            buffer.frameLength = 441
+            
+            let observer = UnsafeRawPointer(Unmanaged.passUnretained(self).toOpaque())
+            
+            let unsafe = UnsafeMutableRawPointer(mutating: observer)
+            
+            var callbacks = AudioCallbacks(
+                audioData: { (data, inNumberFrames, timeStamp, observer) in
+                    let float4Ptr = data.bindMemory(to: Float32.self, capacity: Int(inNumberFrames))
+                    let float4Buffer = UnsafeBufferPointer(start: float4Ptr, count: Int(inNumberFrames))
+                    let output = Array(float4Buffer)
+                    
+                    let mySelf = Unmanaged<AudioManager>.fromOpaque(observer).takeUnretainedValue()
+                    mySelf.analyze(data: output, timeStamp: timeStamp)
+                }, observer: unsafe
+            )
+            
+            contextPointer.pointee.callbacks = callbacks
+            
+//            engine.inputNode.installTap(onBus: AVAudioNodeBus(0),
+//                                             bufferSize: 8192,
+//                                             format: format)
+//                                        { (buffer, time) in
+//                                            self.streamAnalyzer.analyze(buffer, atAudioFramePosition: time.sampleTime)
+//            }
+//            try engine.start()
         } catch {
             assertionFailure("Setup error: \(error)")
         }
@@ -81,6 +145,34 @@ class AudioManager: ObservableObject {
         if error != noErr {
             assertionFailure("Stop error: \(error)")
         }
+    }
+}
+
+class SoundResultsObserver: NSObject, SNResultsObserving {
+    
+    func request(_ request: SNRequest, didProduce result: SNResult) { // Mark 1
+        
+        guard let result = result as? SNClassificationResult else { return } // Mark 2
+        
+        guard let classification = result.classifications.first else { return } // Mark 3
+        
+        let timeInSeconds = result.timeRange.start.seconds // Mark 4
+        
+        let formattedTime = String(format: "%.2f", timeInSeconds)
+        print("Analysis result for audio at time: \(formattedTime)")
+        
+        let confidence = classification.confidence * 100.0
+        let percentString = String(format: "%.2f%%", confidence)
+        
+        print("\(classification.identifier): \(percentString) confidence.\n") // Mark 5
+    }
+    
+    func request(_ request: SNRequest, didFailWithError error: Error) {
+        print("The the analysis failed: \(error.localizedDescription)")
+    }
+    
+    func requestDidComplete(_ request: SNRequest) {
+        print("The request completed successfully!")
     }
 }
 
@@ -141,6 +233,16 @@ class DeviceManager {
         guard error == noErr else {
             throw AudioUnitInputCreationError.cantEnableInputIO(error: error)
         }
+        
+//        error = AudioUnitSetProperty(audioUnit,
+//                                     kAUVoiceIOProperty_BypassVoiceProcessing,
+//                                     kAudioUnitScope_Input,
+//                                     inputBus,
+//                                     &enabled,
+//                                     size(of: enabled))
+//        guard error == noErr else {
+//            throw AudioUnitInputCreationError.cantEnableInputIO(error: error)
+//        }
         
         // Enable IO on the output
         error = AudioUnitSetProperty(audioUnit,
